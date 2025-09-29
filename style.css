@@ -1,14 +1,26 @@
 /* ===================================================
-// ARQUIVO: style.css (COMPLETO E CORRIGIDO)
+// ARQUIVO: style.css (REFORMULADO - Moderno e Amarelo)
 // =================================================== */
 
-/* --- Estilos Gerais --- */
+/* --- Variáveis de Cor (Paleta Amarela) --- */
+:root {
+    --color-primary: #FFC107; /* Amarelo Vibrante */
+    --color-primary-dark: #E0A800; /* Amarelo Escuro */
+    --color-secondary: #343A40; /* Cinza Escuro para Texto */
+    --color-background: #F8F9FA; /* Fundo Suave */
+    --color-card: #FFFFFF;
+    --color-success: #28A745;
+    --color-danger: #DC3545;
+}
+
+/* --- Estilos Gerais e Tipografia --- */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f9;
-    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-secondary);
     margin: 0;
     padding: 0;
+    line-height: 1.6;
 }
 
 .container {
@@ -17,95 +29,111 @@ body {
     margin: 0 auto;
 }
 
+/* --- Cabeçalho (Header) --- */
 header {
-    background-color: #007bff;
-    color: white;
-    padding: 20px 0;
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+    padding: 30px 0;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
     margin: 0;
-    font-size: 2.5em;
+    font-size: 2.8em;
+    font-weight: 900;
 }
 
 header p {
     margin: 5px 0 0;
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
+/* --- Layout Principal (CSS Grid) --- */
 main {
-    display: flex;
-    gap: 30px;
-    padding: 30px 0;
+    display: grid;
+    grid-template-columns: 350px 1fr; /* Coluna fixa para controles, restante para roadmap */
+    gap: 40px;
+    padding: 40px 0;
 }
 
 /* --- Controles e Mascote --- */
 .controles {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    min-width: 300px;
-    align-self: flex-start; /* Fixa no topo */
+    background-color: var(--color-card);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    height: fit-content; /* Ocupa apenas o espaço necessário */
 }
 
 .mascote-area {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
 }
 
+/* AJUSTE CRÍTICO: Mascote Maior e sem aparência de foto de perfil */
 .mascote {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
-    border: 3px solid #007bff;
+    width: 150px;
+    height: 150px;
+    border-radius: 8px; /* Remove o círculo para parecer um elemento de design */
+    object-fit: contain;
+    margin-bottom: 15px;
+    border: none;
+    background-color: transparent; 
+}
+
+.controles h2 {
+    color: var(--color-secondary);
+    font-size: 1.6em;
+    margin-top: 0;
 }
 
 .controles label {
     display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 8px;
     font-weight: bold;
-    color: #555;
+    color: var(--color-secondary);
+    font-size: 0.95em;
 }
 
 .controles input[type="text"],
 .controles select,
 .controles textarea {
-    width: calc(100% - 20px);
-    padding: 10px;
+    width: 100%;
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px;
     box-sizing: border-box;
     resize: vertical;
+    font-size: 1em;
 }
 
 .controles textarea {
-    min-height: 80px;
+    min-height: 100px;
 }
 
 /* --- Botões --- */
 .btn-primary {
     display: block;
     width: 100%;
-    padding: 12px;
-    margin-top: 25px;
-    background-color: #28a745;
-    color: white;
+    padding: 14px;
+    margin-top: 30px;
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 1.1em;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn-primary:hover {
-    background-color: #218838;
+    background-color: var(--color-primary-dark);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -116,5 +144,241 @@ main {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
-    margin-top: 10px;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* --- Área do Roadmap --- */
+#roadmap-container {
+    background-color: var(--color-card);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+#roadmap-container h2 {
+    color: var(--color-primary);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-size: 1.8em;
+}
+
+.roadmap-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-top: 10px;
+}
+
+.bloco {
+    /* Novo layout para blocos: 3 por linha em telas grandes */
+    flex: 1 1 calc(33.333% - 20px); 
+    min-width: 250px;
+    padding: 25px;
+    background-color: #FFFBEA; /* Amarelo muito claro */
+    border: 1px solid var(--color-primary-dark);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.bloco:hover {
+    background-color: var(--color-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.placeholder-text {
+    color: #999;
+    text-align: center;
+    width: 100%;
+    padding: 50px;
+    font-style: italic;
+}
+
+/* --- Modal (Pop-up) --- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); 
+}
+
+.modal-content {
+    background-color: var(--color-card);
+    margin: 4% auto; 
+    padding: 35px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    width: 90%;
+    max-width: 850px;
+}
+
+.modal-content h2 {
+    border-bottom: 3px solid var(--color-primary);
+    padding-bottom: 10px;
+    margin-top: 0;
+    color: var(--color-secondary);
+}
+
+#modal-conteudo h3 {
+    color: var(--color-secondary);
+    margin-top: 30px;
+    border-left: 5px solid var(--color-primary);
+    padding-left: 12px;
+}
+
+.topico-bloco {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: stretch;
+}
+
+.material-btn {
+    flex: 3;
+    padding: 12px 20px;
+    background-color: #F0F0F0;
+    border: 1px solid #ddd;
+    color: var(--color-secondary);
+    cursor: pointer;
+    text-align: left;
+    font-weight: 500;
+    transition: background-color 0.1s;
+    box-shadow: none; /* Remove sombra dos blocos normais */
+}
+
+.material-btn:hover {
+    background-color: #E0E0E0;
+}
+
+.btn-simulado {
+    flex: 1;
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+    border: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: bold;
+    min-width: 150px;
+}
+
+.btn-simulado:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.modal-actions {
+    text-align: right;
+    margin-top: 30px;
+}
+
+/* --- Estilos do Simulado (CORRIGIDO PARA NÃO DESTACAR A RESPOSTA CORRETA) --- */
+.simulado-area ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.simulado-area li.alternativa {
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    
+    /* CORREÇÃO CRÍTICA: Garante que a alternativa correta NÃO comece destacada */
+    background-color: var(--color-card) !important; 
+    color: var(--color-secondary) !important;
+}
+
+/* Estilo para a alternativa incorreta (aplicado APÓS o clique pelo JS) */
+.simulado-area li.incorreta {
+    background-color: #FFF3F3 !important; /* Vermelho muito claro */
+    color: var(--color-danger) !important;
+    border-color: #F5C6CB !important;
+}
+
+.simulado-bloco {
+    margin-bottom: 25px;
+    padding: 20px 0;
+}
+
+.simulado-area hr {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    border-top: 1px solid #eee;
+}
+
+.simulado-area button.btnVerResposta {
+    padding: 10px 20px;
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.simulado-area button.btnVerResposta:hover {
+    background-color: #212529;
+}
+
+
+/* --- Media Queries (Responsividade) --- */
+@media (max-width: 992px) {
+    main {
+        grid-template-columns: 1fr; /* Coluna única em telas menores */
+        gap: 20px;
+    }
+
+    .controles {
+        width: 100%;
+    }
+
+    .roadmap-grid {
+        gap: 15px;
+    }
+
+    .bloco {
+        flex: 1 1 calc(50% - 15px); /* 2 por linha em tablet */
+        min-width: unset;
+    }
+}
+
+@media (max-width: 600px) {
+    .bloco {
+        flex: 1 1 100%; /* 1 por linha em mobile */
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .topico-bloco {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .material-btn, .btn-simulado {
+        width: 100%;
+        min-width: unset;
+    }
 }
