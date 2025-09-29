@@ -1,16 +1,17 @@
 // ===================================================
-// ARQUIVO: script.js (FINAL - Groq API, Mixtral)
+// ARQUIVO: script.js (FINAL - Groq API, Ajustes de Simulado)
 // Este código requer um ambiente HTTPS/web para funcionar.
 // ===================================================
 
-const API_KEY = "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"; // ⬅️ COLE SUA CHAVE DA GROQ AQUI!
+const API_KEY = "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"; // ⬅️ SUA CHAVE DA GROQ
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL_NAME = "llama-3.1-8b-instant"; // ⬅️ MODELO CORRETO E ATIVO
+const MODEL_NAME = "llama-3.1-8b-instant"; // MODELO CORRETO E ATIVO
+
 let modalState = {}; 
 
 document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
 
-// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP ---
+// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (SEM MUDANÇAS) ---
 async function gerarRoadmap() {
   const tema = document.getElementById("tema").value;
   const nivel = document.getElementById("nivel").value;
@@ -32,7 +33,7 @@ async function gerarRoadmap() {
       method: "POST",
       headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${API_KEY}` // Autenticação Groq
+          "Authorization": `Bearer ${API_KEY}`
       },
       body: JSON.stringify({ 
           model: MODEL_NAME,
@@ -45,7 +46,6 @@ async function gerarRoadmap() {
       })
     });
 
-    // Se o status da resposta não for 200 (OK), lança um erro com a mensagem do Groq
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(`Erro API: ${response.status} - ${errorData.error.message}`);
@@ -54,17 +54,13 @@ async function gerarRoadmap() {
     const data = await response.json();
     let texto = data?.choices?.[0]?.message?.content || "";
 
-    // --- EXTRAÇÃO ROBUSTA DO JSON ---
     let textoLimpo = texto.trim();
-
     let parsed;
     try {
         parsed = JSON.parse(textoLimpo);
     } catch (e) {
         console.warn("JSON direto falhou. Tentando extração robusta.");
-        
         textoLimpo = textoLimpo.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
-
         const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
         
         if (!jsonMatch) {
@@ -75,8 +71,6 @@ async function gerarRoadmap() {
     }
     
     const etapas = parsed.etapas;
-    // --- FIM DA EXTRAÇÃO ---
-
     modalState.etapas = etapas; 
     roadmapDiv.innerHTML = "";
 
@@ -94,7 +88,7 @@ async function gerarRoadmap() {
   }
 }
 
-// --- 2. FUNÇÃO: ABRIR MODAL DA ETAPA ---
+// --- 2. FUNÇÃO: ABRIR MODAL DA ETAPA (SEM MUDANÇAS) ---
 function abrirModalMateriais(etapa) {
   modalState.currentEtapa = etapa; 
 
@@ -124,16 +118,17 @@ function abrirModalMateriais(etapa) {
   `;
 }
 
-// --- 3. FUNÇÃO: GERAR SIMULADO ---
+// --- 3. FUNÇÃO: GERAR SIMULADO (AJUSTADA PARA MÚLTIPLAS PERGUNTAS) ---
 async function gerarSimulado(topico) {
     const modalConteudo = document.getElementById("modal-conteudo");
 
     modalConteudo.innerHTML = `<p>Carregando simulado sobre: <strong>${topico}</strong>...</p>`;
 
     try {
-        const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve seguir este formato: {"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}.`;
+        // MUDANÇA 1: PEDIR UM ARRAY DE 3 PERGUNTAS
+        const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de 3 perguntas. O formato deve ser: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, {"pergunta": "...", ...}]}.`;
         
-        const userPromptSimulado = `Crie uma questão de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. A questão deve ter 5 alternativas.`;
+        const userPromptSimulado = `Crie 3 questões de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. Cada questão deve ter 5 alternativas.`;
 
         const response = await fetch(GROQ_ENDPOINT, {
             method: "POST",
@@ -160,32 +155,44 @@ async function gerarSimulado(topico) {
         const data = await response.json();
         let texto = data?.choices?.[0]?.message?.content || "Erro ao gerar simulado.";
 
-        let simulado;
+        let parsedData;
         try {
-            simulado = JSON.parse(texto.trim());
+            parsedData = JSON.parse(texto.trim());
         } catch (e) {
-            console.warn("JSON do simulado falhou. Tentando extração robusta.");
             let textoLimpo = texto.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
             const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error("Não foi possível extrair JSON do simulado.");
-            simulado = JSON.parse(jsonMatch[0]);
+            parsedData = JSON.parse(jsonMatch[0]);
         }
         
-        const alternativasHtml = simulado.alternativas.map((alt) => {
-            const letra = alt.charAt(0);
-            return `<li class="alternativa" 
-                        data-correta="${letra === simulado.resposta_correta.charAt(0)}">
-                        ${alt}
-                    </li>`;
+        // MUDANÇA 2: ITERAR SOBRE O ARRAY DE SIMULADOS
+        const simulados = parsedData.simulados || [parsedData]; 
+        
+        const simuladosHtml = simulados.map((simulado, index) => {
+            const alternativasHtml = simulado.alternativas.map((alt) => {
+                const letra = alt.charAt(0);
+                return `<li class="alternativa" 
+                            data-correta="${letra === simulado.resposta_correta.charAt(0)}">
+                            ${alt}
+                        </li>`;
+            }).join("");
+
+            return `
+                <div class="simulado-bloco">
+                    <h4>Questão ${index + 1}:</h4>
+                    <p><strong>${simulado.pergunta}</strong></p>
+                    <ul>${alternativasHtml}</ul>
+                    <button class="btnVerResposta" onclick="mostrarResposta(this)">Ver Resposta</button>
+                    <p class="feedback" style="font-weight: bold; margin-top: 10px;"></p>
+                </div>
+                <hr>
+            `;
         }).join("");
 
         modalConteudo.innerHTML = `
             <h3>Simulado: ${topico}</h3>
             <div class="simulado-area">
-                <p><strong>${simulado.pergunta}</strong></p>
-                <ul>${alternativasHtml}</ul>
-                <button id="btnVerResposta" onclick="mostrarResposta()">Ver Resposta</button>
-                <p id="feedback" style="font-weight: bold; margin-top: 10px;"></p>
+                ${simuladosHtml}
             </div>
             <div class="modal-actions">
                 <button onclick="abrirModalMateriais(modalState.currentEtapa)" class="btn-secondary">⬅ Voltar</button>
@@ -203,23 +210,35 @@ async function gerarSimulado(topico) {
     }
 }
 
-// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO ---
-function mostrarResposta() {
-    const alternativas = document.querySelectorAll('#modal-conteudo .alternativa');
+// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO (AJUSTADA PARA ESCONDER RESPOSTA) ---
+function mostrarResposta(button) {
+    // Encontra o simulado-bloco pai do botão que foi clicado
+    const simuladoBloco = button.closest('.simulado-bloco');
+    if (!simuladoBloco) return;
+
+    const alternativas = simuladoBloco.querySelectorAll('.alternativa');
+    const feedback = simuladoBloco.querySelector('.feedback');
+
     alternativas.forEach(li => {
         if (li.dataset.correta === 'true') {
-            li.style.backgroundColor = '#d4edda'; 
+            li.style.backgroundColor = '#d4edda'; // Cor verde para correta
+            li.style.color = '#155724';
         } else {
+            // Apenas adiciona a classe .incorreta, que deve ser estilizada no CSS
             li.classList.add('incorreta'); 
         }
         li.style.cursor = 'default';
     });
-    document.getElementById('btnVerResposta').style.display = 'none';
-    document.getElementById('feedback').innerText = 'A resposta correta está destacada.';
+    
+    // Esconde o botão e mostra o feedback
+    button.style.display = 'none';
+    if (feedback) {
+        feedback.innerText = 'A resposta correta está destacada.';
+    }
 }
 
 
-// --- 5. FUNÇÃO: GERAR CONTEÚDO MATERIAL ---
+// --- 5. FUNÇÃO: GERAR CONTEÚDO MATERIAL (SEM MUDANÇAS) ---
 async function gerarConteudoMaterial(topico, material) {
   const modalConteudo = document.getElementById("modal-conteudo");
   modalConteudo.innerHTML = `<p>Carregando conteúdo sobre: <strong>${topico}</strong>...</p>`;
@@ -277,7 +296,7 @@ async function gerarConteudoMaterial(topico, material) {
   }
 }
 
-// --- 6. FUNÇÃO: FECHAR MODAL ---
+// --- 6. FUNÇÃO: FECHAR MODAL (SEM MUDANÇAS) ---
 function fecharModal() {
   document.getElementById("modal").style.display = "none";
 }
