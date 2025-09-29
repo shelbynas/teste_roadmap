@@ -1,45 +1,120 @@
 /* ===================================================
-// ARQUIVO: style.css (Ajustes Finais no Simulado)
+// ARQUIVO: style.css (COMPLETO E CORRIGIDO)
 // =================================================== */
 
-/* ... Mantenha todo o seu CSS anterior ... */
-
-/* --- AJUSTES DO SIMULADO --- */
-
-.simulado-area ul {
-    list-style: none;
+/* --- Estilos Gerais --- */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
     padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+header p {
+    margin: 5px 0 0;
+    font-size: 1.1em;
+}
+
+main {
+    display: flex;
+    gap: 30px;
+    padding: 30px 0;
+}
+
+/* --- Controles e Mascote --- */
+.controles {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    min-width: 300px;
+    align-self: flex-start; /* Fixa no topo */
+}
+
+.mascote-area {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.mascote {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 3px solid #007bff;
+}
+
+.controles label {
+    display: block;
     margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
 }
 
-.simulado-area li.alternativa {
+.controles input[type="text"],
+.controles select,
+.controles textarea {
+    width: calc(100% - 20px);
     padding: 10px;
-    margin-bottom: 8px;
-    border: 1px solid #ced4da;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    transition: background-color 0.3s;
-    /* CORREÇÃO CRÍTICA: Garante que a alternativa correta NÃO comece destacada */
-    background-color: white !important; 
-    color: #343a40 !important;
+    box-sizing: border-box;
+    resize: vertical;
 }
 
-/* Estilo para a alternativa incorreta (aplicado APÓS o clique) */
-.simulado-area li.incorreta {
-    background-color: #ffebeb !important; /* Vermelho muito claro */
-    color: #721c24 !important;
-    border-color: #f5c6cb !important;
+.controles textarea {
+    min-height: 80px;
 }
 
-/* Estilos de blocos de simulação (para múltiplos simulados) */
-.simulado-bloco {
-    margin-bottom: 20px;
-    padding: 15px 0;
+/* --- Botões --- */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.simulado-area hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-top: 1px solid #eee;
+.btn-primary:hover {
+    background-color: #218838;
 }
 
-/* ... Mantenha o restante do seu CSS ... */
+.btn-secondary {
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
