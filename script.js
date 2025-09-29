@@ -5,7 +5,7 @@
 
 const API_KEY = "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"; // ⬅️ COLE SUA CHAVE DA GROQ AQUI!
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL_NAME = "mixtral-8x7b-32768"; 
+const MODEL_NAME = "llama3-8b-8192"; // ⬅️ NOVO MODELO ESTÁVEL 
 
 let modalState = {}; 
 
