@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Roadmap IA</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="mascote-container">
+        <img src="mascote.png" alt="Mascote Pato Estudante" class="mascote"> 
+      </div>
+      <h1>🚀 Gerador de Roadmaps com IA</h1>
+      <p>Monte seu caminho de aprendizado personalizado</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="input-area">
+      <label for="tema">📌 Tema</label>
+      <input type="text" id="tema" placeholder="Digite o tema do roadmap">
+
+      <label for="nivel">📈 Nível</label>
+      <select id="nivel">
+        <option value="iniciante">Iniciante</option>
+        <option value="intermediário">Intermediário</option>
+        <option value="avançado">Avançado</option>
+      </select>
+
+      <label for="objetivo">🎯 Objetivo (opcional)</label>
+      <input type="text" id="objetivo" placeholder="Ex: conseguir um emprego, passar em prova...">
+
+      <button id="btnGerar">✨ Gerar Roadmap</button>
+    </div>
+
+    <div id="roadmap" class="roadmap"></div>
+  </main>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2 id="modal-titulo"></h2>
+      <div id="modal-conteudo"></div>
+      <div class="modal-actions">
+        <button onclick="fecharModal()" class="btn-secondary">❌ Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
