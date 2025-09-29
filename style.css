@@ -280,3 +280,20 @@ header p {
   from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
+/* Adicione este CSS se não tiver no seu style.css */
+.simulado-bloco {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.simulado-area hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.simulado-area li.incorreta {
+    /* Cor de fundo para resposta errada APÓS o clique */
+    background-color: #ffebeb !important; 
+    color: #721c24 !important;
+    border-color: #f5c6cb !important;
+}
