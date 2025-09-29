@@ -1,299 +1,45 @@
-/* Importando uma fonte mais divertida e moderna */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+/* ===================================================
+// ARQUIVO: style.css (Ajustes Finais no Simulado)
+// =================================================== */
 
-/* ===== Estilo Geral e Reset ===== */
-body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    background-color: #fdfdfd; /* Fundo quase branco */
-    color: #343a40; 
-    line-height: 1.6;
-}
+/* ... Mantenha todo o seu CSS anterior ... */
 
-/* ===== Cabeçalho com o Mascote ===== */
-header {
-    /* Gradiente forte em amarelo/laranja */
-    background: linear-gradient(90deg, #ffc107, #ff9800); 
-    padding: 20px 0;
-    text-align: center;
-    color: #333;
-    border-bottom: 5px solid #ff9800;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+/* --- AJUSTES DO SIMULADO --- */
 
-.header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.mascote-container {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 10px;
-    background-color: #fff; /* Fundo branco para a imagem */
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 0 0 5px #fff, 0 0 0 7px #ffc107; /* Borda dupla */
-}
-
-.mascote {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    color: #212529; /* Cor escura para forte contraste */
-    font-weight: 800;
-}
-header p {
-    margin: 5px 0 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-/* ===== Layout Principal ===== */
-.container {
-    max-width: 750px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-.input-area {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: #fff8e1; /* Amarelo claro suave */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid #ffc107;
-}
-
-/* ===== Elementos de Formulário ===== */
-.input-area label {
-    font-weight: 600;
-    margin-bottom: -5px;
-    color: #495057;
-    font-size: 0.95rem;
-}
-.input-area input,
-.input-area select {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ffecb3; /* Borda amarela clara */
-    font-size: 1rem;
-    background-color: #ffffff;
-    transition: border-color 0.3s;
-}
-.input-area input:focus,
-.input-area select:focus {
-    border-color: #ff9800;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.25);
-}
-
-/* ===== Botão Principal ===== */
-#btnGerar {
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    background: #ff9800; /* Laranja vibrante */
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.1s;
-    font-size: 1.1rem;
-    margin-top: 10px;
-}
-#btnGerar:hover {
-    background: #f57c00;
-    transform: translateY(-1px);
-}
-#btnGerar:disabled {
-    background-color: #bdbdbd;
-    cursor: not-allowed;
-}
-
-/* ===== Roadmap Display ===== */
-.roadmap {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 30px;
-}
-.bloco {
-    background: #ffffff;
-    padding: 15px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-    transition: 0.3s;
-    font-weight: 600;
-    text-align: left;
-    border-left: 5px solid #ffc107; /* Destaque amarelo */
-    color: #343a40;
-}
-.bloco:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-    background: #fff3e0; /* Cor de hover suave */
-}
-
-/* ===== Modal - Estilos base ===== */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-}
-.modal-content {
-    background: #fff;
-    margin: 50px auto;
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 700px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    animation: fadeIn 0.3s ease;
-}
-.modal-content h2 {
-    margin-top: 0;
-    color: #ff9800; /* Título do Modal laranja */
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-}
-.modal-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end; 
-    gap: 10px;
-}
-.btn-secondary {
-    background: #6c757d; 
-    color: white;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-}
-.btn-secondary:hover {
-    background: #5a6268;
-}
-
-/* Tópicos e Botão Simulado */
-.topicos-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.topico-bloco {
-    display: flex;
-    gap: 10px;
-    align-items: stretch; 
-    margin-bottom: 10px;
-}
-.material-btn {
-    flex-grow: 1;
-    text-align: left;
-    font-weight: 500;
-    font-size: 0.95rem;
-    padding: 12px 15px;
-    background: #fff3e0; /* Cor de fundo suave */
-    border-left: 5px solid #ffc107; /* Destaque amarelo */
-    box-shadow: none;
-}
-.material-btn:hover {
-    background: #ffe0b2;
-}
-
-.btn-simulado {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    background: #007bff; /* Azul como cor de contraste/ação secundária */
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.btn-simulado:hover {
-    background: #0056b3;
-}
-
-/* Área do Simulado */
 .simulado-area ul {
     list-style: none;
     padding: 0;
     margin-top: 15px;
 }
+
 .simulado-area li.alternativa {
-    padding: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
     border: 1px solid #ced4da;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.simulado-area li.alternativa:hover {
-    background-color: #fff8e1; /* Hover com a cor primária */
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    /* CORREÇÃO CRÍTICA: Garante que a alternativa correta NÃO comece destacada */
+    background-color: white !important; 
+    color: #343a40 !important;
 }
 
-/* Cores de feedback - Mantendo as cores claras */
-.simulado-area li[data-correta='true'] {
-    background-color: #e6ffed !important; /* Verde muito claro */
-    color: #155724;
-    border-color: #c3e6cb;
-}
+/* Estilo para a alternativa incorreta (aplicado APÓS o clique) */
 .simulado-area li.incorreta {
     background-color: #ffebeb !important; /* Vermelho muito claro */
-    color: #721c24;
-    border-color: #f5c6cb;
-}
-
-/* ===== Responsivo ===== */
-@media (max-width: 768px) {
-    .container {
-        margin: 20px auto;
-    }
-    header h1 { font-size: 1.8rem; }
-    .input-area { padding: 20px; }
-    .modal-content { max-width: 95%; margin: 20px auto; }
-    .topico-bloco { flex-direction: column; }
-    .material-btn, .btn-simulado { width: 100%; text-align: center; }
-}
-
-/* ===== Animação ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
-}
-/* Adicione este CSS se não tiver no seu style.css */
-.simulado-bloco {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-.simulado-area hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-.simulado-area li.incorreta {
-    /* Cor de fundo para resposta errada APÓS o clique */
-    background-color: #ffebeb !important; 
     color: #721c24 !important;
     border-color: #f5c6cb !important;
 }
+
+/* Estilos de blocos de simulação (para múltiplos simulados) */
+.simulado-bloco {
+    margin-bottom: 20px;
+    padding: 15px 0;
+}
+
+.simulado-area hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* ... Mantenha o restante do seu CSS ... */
