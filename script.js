@@ -1,5 +1,5 @@
 // ===================================================
-// ARQUIVO: script.js (FINAL - Groq API, Ajustes de Simulado)
+// ARQUIVO: script.js (FINAL - Corrigido para 6+ etapas, fontes e simulado)
 // Este código requer um ambiente HTTPS/web para funcionar.
 // ===================================================
 
@@ -11,7 +11,7 @@ let modalState = {};
 
 document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
 
-// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (SEM MUDANÇAS) ---
+// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (AJUSTADA PARA MAIS ETAPAS/FONTES) ---
 async function gerarRoadmap() {
   const tema = document.getElementById("tema").value;
   const nivel = document.getElementById("nivel").value;
@@ -25,9 +25,10 @@ async function gerarRoadmap() {
   }
   
   try {
-    const systemPrompt = `Você é um gerador de roadmaps. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL ou null"}], "atividade": "Descrição da atividade prática"}]}.`;
+    // AJUSTE CRÍTICO: Prompt para garantir mais etapas (6 ou mais) e URLs.
+    const systemPrompt = `Você é um gerador de roadmaps. Crie um roadmap detalhado com no mínimo 6 (seis) etapas. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa ou null"}], "atividade": "Descrição da atividade prática"}]}.`;
     
-    const userPrompt = `Crie um roadmap de estudos para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}.`;
+    const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' sempre que possível.`;
 
     const response = await fetch(GROQ_ENDPOINT, {
       method: "POST",
@@ -84,7 +85,7 @@ async function gerarRoadmap() {
 
   } catch (err) {
     console.error("Erro:", err);
-    roadmapDiv.innerHTML = `⚠️ Erro ao gerar roadmap. Causa: ${err.message}. (Tente hospedar o projeto!)`;
+    roadmapDiv.innerHTML = `⚠️ Erro ao gerar roadmap. Causa: ${err.message}.`;
   }
 }
 
@@ -118,14 +119,14 @@ function abrirModalMateriais(etapa) {
   `;
 }
 
-// --- 3. FUNÇÃO: GERAR SIMULADO (AJUSTADA PARA MÚLTIPLAS PERGUNTAS) ---
+// --- 3. FUNÇÃO: GERAR SIMULADO (AJUSTADA PARA 3 PERGUNTAS) ---
 async function gerarSimulado(topico) {
     const modalConteudo = document.getElementById("modal-conteudo");
 
     modalConteudo.innerHTML = `<p>Carregando simulado sobre: <strong>${topico}</strong>...</p>`;
 
     try {
-        // MUDANÇA 1: PEDIR UM ARRAY DE 3 PERGUNTAS
+        // AJUSTE CRÍTICO: Pedindo 3 questões em um array
         const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de 3 perguntas. O formato deve ser: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, {"pergunta": "...", ...}]}.`;
         
         const userPromptSimulado = `Crie 3 questões de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. Cada questão deve ter 5 alternativas.`;
@@ -165,7 +166,7 @@ async function gerarSimulado(topico) {
             parsedData = JSON.parse(jsonMatch[0]);
         }
         
-        // MUDANÇA 2: ITERAR SOBRE O ARRAY DE SIMULADOS
+        // Renderiza o array de simulados
         const simulados = parsedData.simulados || [parsedData]; 
         
         const simuladosHtml = simulados.map((simulado, index) => {
@@ -210,7 +211,7 @@ async function gerarSimulado(topico) {
     }
 }
 
-// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO (AJUSTADA PARA ESCONDER RESPOSTA) ---
+// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO (AJUSTADA PARA MOSTRAR RESPOSTA LOCAL) ---
 function mostrarResposta(button) {
     // Encontra o simulado-bloco pai do botão que foi clicado
     const simuladoBloco = button.closest('.simulado-bloco');
@@ -221,16 +222,15 @@ function mostrarResposta(button) {
 
     alternativas.forEach(li => {
         if (li.dataset.correta === 'true') {
-            li.style.backgroundColor = '#d4edda'; // Cor verde para correta
+            // Aplica o destaque SÓ AQUI.
+            li.style.backgroundColor = '#d4edda'; 
             li.style.color = '#155724';
         } else {
-            // Apenas adiciona a classe .incorreta, que deve ser estilizada no CSS
             li.classList.add('incorreta'); 
         }
         li.style.cursor = 'default';
     });
     
-    // Esconde o botão e mostra o feedback
     button.style.display = 'none';
     if (feedback) {
         feedback.innerText = 'A resposta correta está destacada.';
