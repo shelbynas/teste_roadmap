@@ -1,5 +1,5 @@
 /* ===================================================
-// ARQUIVO: style.css (FINAL - Design Amarelo + Botões Maiores + Novas Telas)
+// ARQUIVO: style.css (FINAL - Design Amarelo + Mascotes Corrigidos)
 // =================================================== */
 
 /* --- Variáveis de Cor (Paleta Amarela) --- */
@@ -50,13 +50,15 @@ body {
     width: 90%;
 }
 
+/* MASCOTE DA TELA INICIAL: MAIOR e SEM MOLDURA */
 .mascote-welcome {
-    width: 180px; /* Mascote maior na tela de boas-vindas */
-    height: 180px;
-    border-radius: 8px;
+    width: 220px; /* Aumentado */
+    height: 220px; /* Aumentado */
+    border-radius: 0; /* REMOVIDA A BORDA ARREDONDADA */
     object-fit: contain;
     margin-bottom: 25px;
-    border: 3px solid var(--color-primary);
+    border: none; /* REMOVIDA A MOLDURA QUADRADA */
+    background-color: transparent; /* Garante que o fundo não atrapalhe o PNG */
 }
 
 .message-card h2 {
@@ -87,8 +89,9 @@ header p {
 }
 
 main {
+    /* Mantém o grid original para desktop: 350px para controles, 1fr para roadmap */
     display: grid;
-    grid-template-columns: 350px 1fr; /* Coluna fixa para controles, restante para roadmap */
+    grid-template-columns: 350px 1fr; 
     gap: 40px;
     padding: 40px 0;
 }
@@ -110,10 +113,10 @@ main {
     border-bottom: 1px solid #eee;
 }
 
-/* Mascote menor na tela principal (que havia sumido) */
+/* MASCOTE DA TELA DE ROADMAP: Mantido no tamanho original */
 .mascote {
-    width: 100px;
-    height: 100px;
+    width: 150px; /* Tamanho original */
+    height: 150px; /* Tamanho original */
     border-radius: 8px; 
     object-fit: contain;
     margin-bottom: 15px;
@@ -174,7 +177,7 @@ main {
 }
 
 .btn-secondary {
-    /* AJUSTE SOLICITADO: Aumentando o padding e fonte para ser mais clicável */
+    /* Ajuste de tamanho para Voltar/Fechar */
     padding: 14px 20px; 
     font-size: 1.1em; 
 
@@ -414,8 +417,8 @@ main {
     }
     
     .mascote-welcome {
-        width: 150px; 
-        height: 150px;
+        width: 180px; /* Ajuste para telas pequenas */
+        height: 180px;
     }
 
     .message-card h2 {
