@@ -1,5 +1,5 @@
 /* ===================================================
-// ARQUIVO: style.css (REFORMULADO - Moderno, Amarelo e Responsivo)
+// ARQUIVO: style.css (FINAL - Design Amarelo + Botões Maiores + Novas Telas)
 // =================================================== */
 
 /* --- Variáveis de Cor (Paleta Amarela) --- */
@@ -30,7 +30,43 @@ body {
     margin: 0 auto;
 }
 
-/* --- Cabeçalho (Header) --- */
+/* --- ESTILOS DAS NOVAS TELAS (Boas-Vindas e Explicação) --- */
+.full-screen-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background-color: var(--color-background);
+    text-align: center;
+}
+
+.message-card {
+    background-color: var(--color-card);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 90%;
+}
+
+.mascote-welcome {
+    width: 180px; /* Mascote maior na tela de boas-vindas */
+    height: 180px;
+    border-radius: 8px;
+    object-fit: contain;
+    margin-bottom: 25px;
+    border: 3px solid var(--color-primary);
+}
+
+.message-card h2 {
+    color: var(--color-primary-dark);
+    font-size: 2.5em;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- Layout Principal (Header e Main) --- */
 header {
     background-color: var(--color-primary);
     color: var(--color-secondary);
@@ -50,7 +86,6 @@ header p {
     font-size: 1.2em;
 }
 
-/* --- Layout Principal (CSS Grid para Desktop) --- */
 main {
     display: grid;
     grid-template-columns: 350px 1fr; /* Coluna fixa para controles, restante para roadmap */
@@ -58,14 +93,13 @@ main {
     padding: 40px 0;
 }
 
-/* --- Controles e Mascote --- */
+/* --- Controles e Mascote (Tela Principal) --- */
 .controles {
     background-color: var(--color-card);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     height: fit-content; 
-    /* GARANTE QUE O PAINEL DE CONTROLE NÃO QUEBRE EM TELAS PEQUENAS */
     min-width: unset; 
 }
 
@@ -76,10 +110,10 @@ main {
     border-bottom: 1px solid #eee;
 }
 
-/* Mascote Maior e sem borda */
+/* Mascote menor na tela principal */
 .mascote {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
     border-radius: 8px; 
     object-fit: contain;
     margin-bottom: 15px;
@@ -141,7 +175,7 @@ main {
 
 .btn-secondary {
     /* AJUSTE SOLICITADO: Aumentando o padding e fonte para ser mais clicável */
-    padding: 14px 20px;
+    padding: 14px 20px; 
     font-size: 1.1em; 
 
     background-color: #6c757d;
@@ -307,7 +341,7 @@ main {
     transition: background-color 0.3s;
     cursor: pointer;
     
-    /* CORREÇÃO CRÍTICA: Não destaca NADA até o clique */
+    /* Não destaca NADA até o clique */
     background-color: var(--color-card) !important; 
     color: var(--color-secondary) !important;
 }
@@ -348,11 +382,9 @@ main {
 
 
 /* --- Media Queries (RESPONSIVIDADE COMPLETA) --- */
-
-/* MUDANÇA PARA TABLETS E TELAS MÉDIAS (< 992px) */
 @media (max-width: 992px) {
     main {
-        grid-template-columns: 1fr; /* Coluna única: Controles em cima, Roadmap embaixo */
+        grid-template-columns: 1fr; 
         gap: 20px;
         padding: 20px 0;
     }
@@ -367,7 +399,7 @@ main {
     }
 
     .bloco {
-        flex: 1 1 calc(50% - 15px); /* 2 blocos por linha */
+        flex: 1 1 calc(50% - 15px); 
         min-width: unset;
     }
 
@@ -376,14 +408,22 @@ main {
     }
 }
 
-/* MUDANÇA PARA CELULARES (< 600px) */
 @media (max-width: 600px) {
     header h1 {
         font-size: 2em;
     }
+    
+    .mascote-welcome {
+        width: 150px; 
+        height: 150px;
+    }
+
+    .message-card h2 {
+        font-size: 2em;
+    }
 
     .bloco {
-        flex: 1 1 100%; /* 1 bloco por linha */
+        flex: 1 1 100%; 
     }
 
     .modal-content {
@@ -393,7 +433,7 @@ main {
     }
     
     .topico-bloco {
-        flex-direction: column; /* Botões um embaixo do outro no modal */
+        flex-direction: column; 
         gap: 10px;
     }
 
