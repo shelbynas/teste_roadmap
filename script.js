@@ -1,5 +1,5 @@
 // ===================================================
-// ARQUIVO: script.js (FINAL - Completo e Otimizado)
+// ARQUIVO: script.js (FINAL - Completo e Aprimorado)
 // ===================================================
 
 const API_KEY = "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"; // ⬅️ SUA CHAVE DA GROQ
@@ -10,7 +10,7 @@ let modalState = {};
 
 document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
 
-// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (AJUSTADA PARA MAIS ETAPAS/FONTES) ---
+// --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (8 ETAPAS E URLS OBRIGATÓRIAS) ---
 async function gerarRoadmap() {
   const tema = document.getElementById("tema").value;
   const nivel = document.getElementById("nivel").value;
@@ -24,10 +24,10 @@ async function gerarRoadmap() {
   }
   
   try {
-    // AJUSTE CRÍTICO: Prompt para garantir mais etapas (mínimo 6) e URLs de fontes externas.
-    const systemPrompt = `Você é um especialista em educação técnica. Crie um roadmap detalhado com no mínimo 6 (seis) etapas obrigatórias. Cada tópico deve ser ultra específico e, sempre que possível, deve ter links para documentação oficial ou tutoriais renomados no campo 'material'. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa ou null"}], "atividade": "Descrição da atividade prática"}]}.`;
+    // AJUSTE: 8 ETAPAS MÍNIMAS e URLS OBRIGATÓRIAS
+    const systemPrompt = `Você é um especialista em educação técnica. Crie um roadmap detalhado com **no mínimo 8 (oito) etapas obrigatórias**. Cada tópico deve ser ultra específico e **DEVE incluir uma URL de documentação oficial ou tutorial renomado** no campo 'material'. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa"}], "atividade": "Descrição da atividade prática"}]}.`;
     
-    const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' sempre que possível.`;
+    const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' para todos os tópicos.`;
 
     const response = await fetch(GROQ_ENDPOINT, {
       method: "POST",
@@ -88,7 +88,7 @@ async function gerarRoadmap() {
   }
 }
 
-// --- 2. FUNÇÃO: ABRIR MODAL DA ETAPA (SEM MUDANÇAS) ---
+// --- 2. FUNÇÃO: ABRIR MODAL DA ETAPA ---
 function abrirModalMateriais(etapa) {
   modalState.currentEtapa = etapa; 
 
@@ -118,16 +118,17 @@ function abrirModalMateriais(etapa) {
   `;
 }
 
-// --- 3. FUNÇÃO: GERAR SIMULADO (3 PERGUNTAS, RESPOSTA OCULTA) ---
+// --- 3. FUNÇÃO: GERAR SIMULADO (5 PERGUNTAS MÍNIMAS) ---
 async function gerarSimulado(topico) {
     const modalConteudo = document.getElementById("modal-conteudo");
 
     modalConteudo.innerHTML = `<p>Carregando simulado sobre: <strong>${topico}</strong>...</p>`;
 
     try {
-        const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de 3 perguntas. O formato deve ser: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, {"pergunta": "...", ...}]}.`;
+        // AJUSTE: 5 QUESTÕES MÍNIMAS
+        const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de **5 perguntas**. O formato deve ser: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, {"pergunta": "...", ...}]}.`;
         
-        const userPromptSimulado = `Crie 3 questões de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. Cada questão deve ter 5 alternativas.`;
+        const userPromptSimulado = `Crie 5 questões de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. Cada questão deve ter 5 alternativas.`;
 
         const response = await fetch(GROQ_ENDPOINT, {
             method: "POST",
@@ -142,7 +143,7 @@ async function gerarSimulado(topico) {
                     { role: "user", content: userPromptSimulado }
                 ],
                 response_format: { type: "json_object" },
-                temperature: 0.6 // Ligeiramente mais focado para simulados
+                temperature: 0.6 
             })
         });
 
@@ -164,7 +165,6 @@ async function gerarSimulado(topico) {
             parsedData = JSON.parse(jsonMatch[0]);
         }
         
-        // Renderiza o array de simulados (garante que funcionará mesmo se a IA retornar apenas 1)
         const simulados = parsedData.simulados || [parsedData]; 
         
         const simuladosHtml = simulados.map((simulado, index) => {
@@ -209,9 +209,8 @@ async function gerarSimulado(topico) {
     }
 }
 
-// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO (Aplicação do destaque APÓS o clique) ---
+// --- 4. FUNÇÃO: MOSTRAR RESPOSTA DO SIMULADO ---
 function mostrarResposta(button) {
-    // Encontra o simulado-bloco pai do botão que foi clicado
     const simuladoBloco = button.closest('.simulado-bloco');
     if (!simuladoBloco) return;
 
@@ -220,17 +219,14 @@ function mostrarResposta(button) {
 
     alternativas.forEach(li => {
         if (li.dataset.correta === 'true') {
-            // Aplica o destaque verde APENAS aqui
             li.style.backgroundColor = '#d4edda'; 
             li.style.color = '#155724';
         } else {
-            // Aplica a classe de destaque vermelho para incorreta
             li.classList.add('incorreta'); 
         }
         li.style.cursor = 'default';
     });
     
-    // Esconde o botão e mostra o feedback
     button.style.display = 'none';
     if (feedback) {
         feedback.innerText = 'A resposta correta está destacada.';
@@ -238,14 +234,15 @@ function mostrarResposta(button) {
 }
 
 
-// --- 5. FUNÇÃO: GERAR CONTEÚDO MATERIAL (SEM MUDANÇAS) ---
+// --- 5. FUNÇÃO: GERAR CONTEÚDO MATERIAL (EXIBE FONTE) ---
 async function gerarConteudoMaterial(topico, material) {
   const modalConteudo = document.getElementById("modal-conteudo");
   modalConteudo.innerHTML = `<p>Carregando conteúdo sobre: <strong>${topico}</strong>...</p>`;
 
   try {
+    // AJUSTE: Instrução para usar o link e gerar a explicação.
     const userPromptMaterial = material 
-      ? `Explique de forma didática e detalhada o tópico "${topico}" usando o conteúdo do link: ${material}.`
+      ? `Explique de forma didática e detalhada o tópico "${topico}" consultando o conteúdo do link: ${material}. A sua resposta deve ser APENAS a explicação, sem mencionar a fonte. Se o link for inacessível ou inválido, gere a explicação baseada em seu conhecimento.`
       : `Explique de forma didática e detalhada o tópico "${topico}".`;
 
     const response = await fetch(GROQ_ENDPOINT, {
@@ -275,11 +272,21 @@ async function gerarConteudoMaterial(topico, material) {
     texto = texto.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
     texto = texto.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
 
+    // CONDIÇÃO PARA EXIBIR A FONTE
+    let sourceHtml = '';
+    if (material && material !== 'null' && material.startsWith('http')) {
+        sourceHtml = `
+            <h3 style="margin-top: 30px; border-left: 4px solid #007bff; padding-left: 10px;">🔗 Fonte Utilizada</h3>
+            <p><a href="${material}" target="_blank">${material}</a></p>
+        `;
+    }
+
     modalConteudo.innerHTML = `
       <h3>${topico}</h3>
       <div style="max-height:400px; overflow-y:auto; padding-right:10px;">
         ${texto.split("\n\n").map(p => `<p>${p}</p>`).join("")}
       </div>
+      ${sourceHtml} 
       <div class="modal-actions">
         <button onclick="abrirModalMateriais(modalState.currentEtapa)" class="btn-secondary">⬅ Voltar</button>
       </div>
@@ -296,7 +303,7 @@ async function gerarConteudoMaterial(topico, material) {
   }
 }
 
-// --- 6. FUNÇÃO: FECHAR MODAL (SEM MUDANÇAS) ---
+// --- 6. FUNÇÃO: FECHAR MODAL ---
 function fecharModal() {
   document.getElementById("modal").style.display = "none";
 }
