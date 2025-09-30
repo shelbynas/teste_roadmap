@@ -140,7 +140,10 @@ main {
 }
 
 .btn-secondary {
-    padding: 10px 15px;
+    /* AJUSTE SOLICITADO: Aumentando o padding e fonte para ser mais clicável */
+    padding: 14px 20px;
+    font-size: 1.1em; 
+
     background-color: #6c757d;
     color: white;
     border: none;
