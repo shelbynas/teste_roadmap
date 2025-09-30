@@ -1,6 +1,6 @@
 <section id="welcome-screen" class="full-screen-message">
     <div class="message-card">
-        <img src="image_6f68ed.jpg" alt="Mascote Quackademy, o Pato" class="mascote-welcome">
+        <img src="mascote_inicial.png" alt="Mascote Quackademy, o Pato" class="mascote-welcome">
         
         <h2>🦆 Bem-vindo ao Quackademy! </h2>
         <p>Pare de se afogar em tutoriais soltos. Nós transformamos o caos do aprendizado online em uma **trilha de estudos estruturada e à prova de procrastinação**.</p>
@@ -18,9 +18,9 @@
                 A **Quackademy** foi criada para você que está cansado de apenas copiar e colar. Usamos a IA para criar um plano de estudos único, focado em **atividades práticas** e no **entendimento real**.
             </p>
             
-            <h3>⚙️ Como Funciona o Roadmap</h3>
+            <h3>⚙️ Como Funciona Nossa Trilha</h3>
             <ul>
-                <li><strong>Trilhas Guiadas:</strong> Você informa o tema e o nível, e nossa IA gera um **Roadmap de 8 Etapas** personalizadas.</li>
+                <li><strong>Trilhas Guiadas:</strong> Você informa o tema e o nível, e nossa IA gera uma **Trilha de Estudos de 8 Etapas** personalizadas.</li>
                 <li><strong>Material Confiável:</strong> Cada tópico vem com um link obrigatório de documentação oficial ou fonte renomada.</li>
                 <li><strong>Teste Seu Conhecimento:</strong> Criamos **Simulados de 5 Questões** para forçar você a *aplicar* e *entender* o conceito, garantindo que você nunca caia no ciclo de apenas pegar a resposta.</li>
             </ul>
@@ -28,3 +28,45 @@
         <button id="btnExplanationContinue" class="btn-primary">Começar Minha Trilha 🚀</button>
     </div>
 </section>
+
+<div id="main-app" style="display: none;">
+    <header>
+        <div class="container">
+            <h1>Quackademy Trilha de Estudos</h1>
+            <p>O seu guia para o aprendizado acelerado e estruturado.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        ```
+
+---
+
+## 2. Ajustes Necessários no `script.js`
+
+A palavra "roadmap" também aparece no seu arquivo JavaScript, no nome da função principal e em algumas variáveis de interface, mesmo que o usuário não veja. Para manter a coerência interna do código, é bom fazer essa substituição.
+
+**No seu arquivo `script.js`, por favor, mude:**
+
+1.  O nome da função principal de `gerarRoadmap` para `gerarTrilha`:
+    ```javascript
+    // Troque esta linha:
+    // document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
+    // Por esta:
+    document.getElementById("btnGerar").addEventListener("click", gerarTrilha);
+
+    // E troque esta função:
+    // async function gerarRoadmap() {
+    // Por esta:
+    async function gerarTrilha() { 
+    ```
+
+2.  E o texto da mensagem de carregamento dentro dessa função:
+    ```javascript
+    // Troque esta linha:
+    // roadmapDiv.innerHTML = "✨ Gerando roadmap...";
+    // Por esta:
+    roadmapDiv.innerHTML = "✨ Gerando sua trilha de estudos...";
+    ```
+
+Com essas mudanças, toda a sua interface e a comunicação da Quackademy estarão alinhadas com o termo **Trilha de Estudos**.
