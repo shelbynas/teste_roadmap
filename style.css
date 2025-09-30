@@ -382,3 +382,51 @@ main {
         min-width: unset;
     }
 }
+/* --- Media Queries (Responsividade) --- */
+/* MUDANÇA PARA TABLETS E TELAS MÉDIAS */
+@media (max-width: 992px) {
+    main {
+        grid-template-columns: 1fr; /* Coluna única em telas menores */
+        gap: 20px;
+    }
+
+    .controles {
+        width: 100%;
+        /* Garantir que não haja largura mínima quebre a tela */
+        min-width: unset; 
+    }
+
+    .roadmap-grid {
+        gap: 15px;
+    }
+
+    .bloco {
+        /* Permite 2 blocos por linha */
+        flex: 1 1 calc(50% - 15px); 
+        min-width: unset;
+    }
+}
+/* MUDANÇA PARA CELULARES */
+@media (max-width: 600px) {
+    .bloco {
+        /* 1 bloco por linha em mobile */
+        flex: 1 1 100%; 
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 20px; /* Reduz padding para economizar espaço */
+    }
+    
+    .topico-bloco {
+        /* Tópico e botão de simulado um embaixo do outro */
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .material-btn, .btn-simulado {
+        width: 100%;
+        min-width: unset;
+    }
+}
