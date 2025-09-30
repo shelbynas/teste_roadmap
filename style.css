@@ -110,7 +110,7 @@ main {
     border-bottom: 1px solid #eee;
 }
 
-/* Mascote menor na tela principal */
+/* Mascote menor na tela principal (que havia sumido) */
 .mascote {
     width: 100px;
     height: 100px;
