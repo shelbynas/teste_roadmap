@@ -1,82 +1,30 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quackademy - Roadmap Generator</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="favicon.ico"> 
-</head>
-<body>
+<section id="welcome-screen" class="full-screen-message">
+    <div class="message-card">
+        <img src="image_6f68ed.jpg" alt="Mascote Quackademy, o Pato" class="mascote-welcome">
+        
+        <h2>🦆 Bem-vindo ao Quackademy! </h2>
+        <p>Pare de se afogar em tutoriais soltos. Nós transformamos o caos do aprendizado online em uma **trilha de estudos estruturada e à prova de procrastinação**.</p>
+        <button id="btnWelcomeContinue" class="btn-primary">Descubra como</button>
+    </div>
+</section>
 
-    <section id="welcome-screen" class="full-screen-message">
-        <div class="message-card">
-            <img src="mascote_inicial.png" alt="Mascote Quackademy" class="mascote-welcome">
-            <h2>🦆 Bem-vindo ao Quackademy! </h2>
-            <p>Seu assistente pessoal para criar roadmaps de estudo e simulados.</p>
-            <button id="btnWelcomeContinue" class="btn-primary">Continuar</button>
-        </div>
-    </section>
-
-    <section id="explanation-screen" class="full-screen-message" style="display: none;">
-        <div class="message-card">
-            <h2>O que fazemos?</h2>
+<section id="explanation-screen" class="full-screen-message" style="display: none;">
+    <div class="message-card">
+        <h2>Sua Jornada de Aprendizado Personalizada</h2>
+        <div style="text-align: left; margin: 20px 0;">
+            
+            <h3>🧠 O Nosso Propósito</h3>
             <p>
-                O Quackademy é uma ferramenta de aprendizado que utiliza Inteligência Artificial para transformar qualquer tópico em um plano de estudos claro e estruturado.
-                Basta nos dizer o **tema** e o **nível** desejado, e nós geramos um roadmap de **8 etapas** com materiais de estudo (links obrigatórios) e simulados de **5 questões** para garantir seu aprendizado prático.
+                A **Quackademy** foi criada para você que está cansado de apenas copiar e colar. Usamos a IA para criar um plano de estudos único, focado em **atividades práticas** e no **entendimento real**.
             </p>
-            <button id="btnExplanationContinue" class="btn-primary">Continuar para o Roadmap</button>
+            
+            <h3>⚙️ Como Funciona o Roadmap</h3>
+            <ul>
+                <li><strong>Trilhas Guiadas:</strong> Você informa o tema e o nível, e nossa IA gera um **Roadmap de 8 Etapas** personalizadas.</li>
+                <li><strong>Material Confiável:</strong> Cada tópico vem com um link obrigatório de documentação oficial ou fonte renomada.</li>
+                <li><strong>Teste Seu Conhecimento:</strong> Criamos **Simulados de 5 Questões** para forçar você a *aplicar* e *entender* o conceito, garantindo que você nunca caia no ciclo de apenas pegar a resposta.</li>
+            </ul>
         </div>
-    </section>
-
-    <div id="main-app" style="display: none;">
-        <header>
-            <div class="container">
-                <h1>Quackademy Roadmap Generator</h1>
-                <p>O seu guia para o aprendizado acelerado e estruturado.</p>
-            </div>
-        </header>
-
-        <main class="container">
-            <div class="controles">
-                <div class="mascote-area">
-                    <img src="image_6f68ed.jpg" alt="Mascote Quackademy" class="mascote">
-                    <h2>Defina seu Desafio</h2>
-                </div>
-                
-                <label for="tema">Tema ou Tecnologia:</label>
-                <input type="text" id="tema" placeholder="Ex: Programação Python, Cloud Computing, etc." required>
-                
-                <label for="nivel">Nível de Dificuldade:</label>
-                <select id="nivel">
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                </select>
-                
-                <label for="objetivo">Objetivo Específico (Opcional):</label>
-                <textarea id="objetivo" placeholder="Ex: Aprender a criar um backend com Node.js e Express."></textarea>
-                
-                <button id="btnGerar" class="btn-primary">Gerar Roadmap 🚀</button>
-            </div>
-
-            <div id="roadmap-container">
-                <h2>Seu Plano de Estudos</h2>
-                <div id="roadmap" class="roadmap-grid">
-                    <p class="placeholder-text">Preencha o formulário ao lado e gere seu primeiro roadmap!</p>
-                </div>
-            </div>
-        </main>
+        <button id="btnExplanationContinue" class="btn-primary">Começar Minha Trilha 🚀</button>
     </div>
-
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modal-titulo"></h2>
-            <div id="modal-conteudo">
-                </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+</section>
