@@ -1,5 +1,5 @@
 // ===================================================
-// ARQUIVO: script.js (FINAL - Completo e Aprimorado)
+// ARQUIVO: script.js (FINAL - Completo e Aprimorado com Transição)
 // ===================================================
 
 const API_KEY = "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"; // ⬅️ SUA CHAVE DA GROQ
@@ -8,7 +8,34 @@ const MODEL_NAME = "llama-3.1-8b-instant"; // MODELO CORRETO E ATIVO
 
 let modalState = {}; 
 
-document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
+// --- CONTROLE DE FLUXO DA INTERFACE ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Esconde todas as telas e mostra a primeira
+    document.getElementById("explanation-screen").style.display = 'none';
+    document.getElementById("main-app").style.display = 'none';
+    document.getElementById("welcome-screen").style.display = 'flex'; // Garante que a primeira tela esteja visível
+
+    // Adiciona listeners para os botões de transição
+    document.getElementById("btnWelcomeContinue").addEventListener("click", showExplanationScreen);
+    document.getElementById("btnExplanationContinue").addEventListener("click", showMainApp);
+    
+    // Listener do botão principal
+    document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
+});
+
+function showExplanationScreen() {
+    document.getElementById("welcome-screen").style.display = 'none';
+    document.getElementById("explanation-screen").style.display = 'flex';
+}
+
+function showMainApp() {
+    document.getElementById("explanation-screen").style.display = 'none';
+    document.getElementById("main-app").style.display = 'block';
+}
+
+
+// --- LÓGICA DO ROADMAP (Funções Complexas Inalteradas) ---
 
 // --- 1. FUNÇÃO PRINCIPAL: GERAR ROADMAP (8 ETAPAS E URLS OBRIGATÓRIAS) ---
 async function gerarRoadmap() {
@@ -24,7 +51,7 @@ async function gerarRoadmap() {
   }
   
   try {
-    // AJUSTE: 8 ETAPAS MÍNIMAS e URLS OBRIGATÓRIAS
+    // PROMPTS: 8 ETAPAS MÍNIMAS e URLS OBRIGATÓRIAS
     const systemPrompt = `Você é um especialista em educação técnica. Crie um roadmap detalhado com **no mínimo 8 (oito) etapas obrigatórias**. Cada tópico deve ser ultra específico e **DEVE incluir uma URL de documentação oficial ou tutorial renomado** no campo 'material'. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa"}], "atividade": "Descrição da atividade prática"}]}.`;
     
     const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' para todos os tópicos.`;
@@ -125,7 +152,7 @@ async function gerarSimulado(topico) {
     modalConteudo.innerHTML = `<p>Carregando simulado sobre: <strong>${topico}</strong>...</p>`;
 
     try {
-        // AJUSTE: 5 QUESTÕES MÍNIMAS
+        // PROMPT: 5 QUESTÕES MÍNIMAS
         const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de **5 perguntas**. O formato deve ser: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, {"pergunta": "...", ...}]}.`;
         
         const userPromptSimulado = `Crie 5 questões de múltipla escolha sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}. Cada questão deve ter 5 alternativas.`;
@@ -240,7 +267,7 @@ async function gerarConteudoMaterial(topico, material) {
   modalConteudo.innerHTML = `<p>Carregando conteúdo sobre: <strong>${topico}</strong>...</p>`;
 
   try {
-    // AJUSTE: Instrução para usar o link e gerar a explicação.
+    // PROMPT: Instrução para usar o link e gerar a explicação.
     const userPromptMaterial = material 
       ? `Explique de forma didática e detalhada o tópico "${topico}" consultando o conteúdo do link: ${material}. A sua resposta deve ser APENAS a explicação, sem mencionar a fonte. Se o link for inacessível ou inválido, gere a explicação baseada em seu conhecimento.`
       : `Explique de forma didática e detalhada o tópico "${topico}".`;
@@ -276,7 +303,7 @@ async function gerarConteudoMaterial(topico, material) {
     let sourceHtml = '';
     if (material && material !== 'null' && material.startsWith('http')) {
         sourceHtml = `
-            <h3 style="margin-top: 30px; border-left: 4px solid #007bff; padding-left: 10px;">🔗 Fonte Utilizada</h3>
+            <h3 style="margin-top: 30px; border-left: 5px solid var(--color-primary); padding-left: 12px;">🔗 Fonte Utilizada</h3>
             <p><a href="${material}" target="_blank">${material}</a></p>
         `;
     }
