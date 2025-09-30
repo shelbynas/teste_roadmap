@@ -1,5 +1,5 @@
 /* ===================================================
-// ARQUIVO: style.css (REFORMULADO - Moderno e Amarelo)
+// ARQUIVO: style.css (REFORMULADO - Moderno, Amarelo e Responsivo)
 // =================================================== */
 
 /* --- Variáveis de Cor (Paleta Amarela) --- */
@@ -11,6 +11,7 @@
     --color-card: #FFFFFF;
     --color-success: #28A745;
     --color-danger: #DC3545;
+    --color-light-yellow: #FFFBEA; /* Amarelo muito claro para blocos */
 }
 
 /* --- Estilos Gerais e Tipografia --- */
@@ -49,7 +50,7 @@ header p {
     font-size: 1.2em;
 }
 
-/* --- Layout Principal (CSS Grid) --- */
+/* --- Layout Principal (CSS Grid para Desktop) --- */
 main {
     display: grid;
     grid-template-columns: 350px 1fr; /* Coluna fixa para controles, restante para roadmap */
@@ -63,7 +64,9 @@ main {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    height: fit-content; /* Ocupa apenas o espaço necessário */
+    height: fit-content; 
+    /* GARANTE QUE O PAINEL DE CONTROLE NÃO QUEBRE EM TELAS PEQUENAS */
+    min-width: unset; 
 }
 
 .mascote-area {
@@ -73,11 +76,11 @@ main {
     border-bottom: 1px solid #eee;
 }
 
-/* AJUSTE CRÍTICO: Mascote Maior e sem aparência de foto de perfil */
+/* Mascote Maior e sem borda */
 .mascote {
     width: 150px;
     height: 150px;
-    border-radius: 8px; /* Remove o círculo para parecer um elemento de design */
+    border-radius: 8px; 
     object-fit: contain;
     margin-bottom: 15px;
     border: none;
@@ -174,12 +177,12 @@ main {
     padding-top: 10px;
 }
 
+/* Bloco das Etapas (3 por linha no desktop) */
 .bloco {
-    /* Novo layout para blocos: 3 por linha em telas grandes */
     flex: 1 1 calc(33.333% - 20px); 
     min-width: 250px;
     padding: 25px;
-    background-color: #FFFBEA; /* Amarelo muito claro */
+    background-color: var(--color-light-yellow); 
     border: 1px solid var(--color-primary-dark);
     border-radius: 8px;
     text-align: center;
@@ -257,7 +260,7 @@ main {
     text-align: left;
     font-weight: 500;
     transition: background-color 0.1s;
-    box-shadow: none; /* Remove sombra dos blocos normais */
+    box-shadow: none; 
 }
 
 .material-btn:hover {
@@ -286,7 +289,7 @@ main {
     margin-top: 30px;
 }
 
-/* --- Estilos do Simulado (CORRIGIDO PARA NÃO DESTACAR A RESPOSTA CORRETA) --- */
+/* --- Estilos do Simulado (CORRIGIDO) --- */
 .simulado-area ul {
     list-style: none;
     padding: 0;
@@ -301,7 +304,7 @@ main {
     transition: background-color 0.3s;
     cursor: pointer;
     
-    /* CORREÇÃO CRÍTICA: Garante que a alternativa correta NÃO comece destacada */
+    /* CORREÇÃO CRÍTICA: Não destaca NADA até o clique */
     background-color: var(--color-card) !important; 
     color: var(--color-secondary) !important;
 }
@@ -341,58 +344,18 @@ main {
 }
 
 
-/* --- Media Queries (Responsividade) --- */
+/* --- Media Queries (RESPONSIVIDADE COMPLETA) --- */
+
+/* MUDANÇA PARA TABLETS E TELAS MÉDIAS (< 992px) */
 @media (max-width: 992px) {
     main {
-        grid-template-columns: 1fr; /* Coluna única em telas menores */
+        grid-template-columns: 1fr; /* Coluna única: Controles em cima, Roadmap embaixo */
         gap: 20px;
+        padding: 20px 0;
     }
 
     .controles {
         width: 100%;
-    }
-
-    .roadmap-grid {
-        gap: 15px;
-    }
-
-    .bloco {
-        flex: 1 1 calc(50% - 15px); /* 2 por linha em tablet */
-        min-width: unset;
-    }
-}
-
-@media (max-width: 600px) {
-    .bloco {
-        flex: 1 1 100%; /* 1 por linha em mobile */
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 10% auto;
-    }
-    
-    .topico-bloco {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .material-btn, .btn-simulado {
-        width: 100%;
-        min-width: unset;
-    }
-}
-/* --- Media Queries (Responsividade) --- */
-/* MUDANÇA PARA TABLETS E TELAS MÉDIAS */
-@media (max-width: 992px) {
-    main {
-        grid-template-columns: 1fr; /* Coluna única em telas menores */
-        gap: 20px;
-    }
-
-    .controles {
-        width: 100%;
-        /* Garantir que não haja largura mínima quebre a tela */
         min-width: unset; 
     }
 
@@ -401,32 +364,39 @@ main {
     }
 
     .bloco {
-        /* Permite 2 blocos por linha */
-        flex: 1 1 calc(50% - 15px); 
+        flex: 1 1 calc(50% - 15px); /* 2 blocos por linha */
         min-width: unset;
     }
+
+    .modal-content {
+        margin: 8% auto;
+    }
 }
-/* MUDANÇA PARA CELULARES */
+
+/* MUDANÇA PARA CELULARES (< 600px) */
 @media (max-width: 600px) {
+    header h1 {
+        font-size: 2em;
+    }
+
     .bloco {
-        /* 1 bloco por linha em mobile */
-        flex: 1 1 100%; 
+        flex: 1 1 100%; /* 1 bloco por linha */
     }
 
     .modal-content {
         width: 95%;
         margin: 10% auto;
-        padding: 20px; /* Reduz padding para economizar espaço */
+        padding: 20px; 
     }
     
     .topico-bloco {
-        /* Tópico e botão de simulado um embaixo do outro */
-        flex-direction: column;
+        flex-direction: column; /* Botões um embaixo do outro no modal */
         gap: 10px;
     }
 
     .material-btn, .btn-simulado {
         width: 100%;
         min-width: unset;
+        text-align: center;
     }
 }
