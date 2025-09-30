@@ -26,7 +26,7 @@ async function gerarRoadmap() {
   
   try {
     // AJUSTE CRÍTICO: Prompt para garantir mais etapas (6 ou mais) e URLs.
-    const systemPrompt = `Você é um gerador de roadmaps. Crie um roadmap detalhado com no mínimo 6 (seis) etapas. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa ou null"}], "atividade": "Descrição da atividade prática"}]}.`;
+const systemPrompt = `Você é um especialista em educação técnica. Crie um roadmap com no mínimo 6 etapas obrigatórias. Cada tópico deve ser ultra específico e ter links para documentação oficial ou tutoriais renomados. Sua única resposta deve ser APENAS JSON válido...`; O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa ou null"}], "atividade": "Descrição da atividade prática"}]}.`;
     
     const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' sempre que possível.`;
 
