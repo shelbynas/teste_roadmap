@@ -2,7 +2,7 @@
 // ARQUIVO: script.js (FINAL - Completo e Aprimorado com Transição)
 // ===================================================
 
-const API_KEY = "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"; // ⬅️ SUA CHAVE DA GROQ
+const API_KEY = "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"; // ⬅️ SUA CHAVE DA GROQ
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL_NAME = "llama-3.1-8b-instant"; // MODELO CORRETO E ATIVO
 
