@@ -4,12 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quackademy - Trilha de Estudos</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.ico"> 
+    
+    <link rel="stylesheet" href="style.css"> 
+
 </head>
 <body>
+    
+    <section id="login-screen" class="full-screen-message" style="display: flex;">
+        <div class="message-card">
+            <img src="mascote_inicial.png" alt="Mascote Quackademy, o Pato" class="mascote-welcome">
+            
+            <h2>👋 Entre ou Crie sua Conta</h2>
+            <p>Faça login para salvar suas trilhas de estudo e gerenciar seu progresso.</p>
 
-    <section id="welcome-screen" class="full-screen-message">
+            <form id="login-form">
+                <label for="username">Nome de Usuário:</label>
+                <input type="text" id="username" placeholder="Seu nome de usuário" required>
+                
+                <label for="password">Senha (Apenas para Simulação):</label>
+                <input type="password" id="password" placeholder="Sua senha (protótipo)" required>
+
+                <div class="login-actions">
+                    <button type="submit" id="btnAuthSubmit" class="btn-primary">Entrar / Cadastrar</button>
+                    <button type="button" id="btnSkipLogin" class="btn-secondary">Pular Login (Modo Convidado)</button>
+                </div>
+            </form>
+            <p id="auth-message" style="color: var(--color-danger); margin-top: 10px;"></p>
+        </div>
+    </section>
+
+    <section id="welcome-screen" class="full-screen-message" style="display: none;">
         <div class="message-card">
             <img src="mascote_inicial.png" alt="Mascote Quackademy, o Pato" class="mascote-welcome">
             
@@ -31,62 +56,161 @@
                 
                 <h3>⚙️ Como Funciona Nossa Trilha</h3>
                 <ul>
-                    <li><strong>Trilhas Guiadas:</strong> Você informa o tema e o nível, e nossa IA gera uma <strong>Trilha de Estudos de 8 Etapas</strong> personalizadas.</li>
-                    <li><strong>Material Confiável:</strong> Cada tópico vem com um link obrigatório de documentação oficial ou fonte renomada.</li>
-                    <li><strong>Teste Seu Conhecimento:</strong> Criamos <strong>Simulados de 5 Questões</strong> para forçar você a *aplicar* e *entender* o conceito, garantindo que você nunca caia no ciclo de apenas pegar a resposta.</li>
+                    <li>**Trilhas Guiadas:** Você informa o tema e o nível, e nossa IA gera um plano de 10+ Etapas personalizadas.</li>
+                    <li>**Flashcards:** Use <b>flashcards por tópico</b> para memorizar conceitos chave rapidamente.</li>
+                    <li>**Simulado de Etapa:** Faça um <b>simulado completo por etapa</b> (20+ questões) para testar sua aplicação do conteúdo.</li>
                 </ul>
             </div>
-            <button id="btnExplanationContinue" class="btn-primary">Começar Minha Trilha 🚀</button>
+            <button id="btnExplanationContinue" class="btn-primary">Ver Cursos Rápidos 🚀</button>
         </div>
     </section>
 
     <div id="main-app" style="display: none;">
         <header>
-            <div class="container">
-                <h1>Quackademy Trilha de Estudos</h1>
-                <p>O seu guia para o aprendizado acelerado e estruturado.</p>
+            <div class="header-content">
+                <div class="header-info">
+                    <h1>Quackademy Trilha de Estudos</h1>
+                    <p>Usuário: <span id="userNameDisplay">Carregando...</span></p>
+                </div>
+                <button id="btnMinhasTrilhas" onclick="showUserTrilhasView()">Minhas Trilhas (0)</button>
             </div>
         </header>
 
         <main class="container">
-            <div class="controles">
-                <div class="mascote-area">
-                    <img src="mascote.png" alt="Mascote Quackademy" class="mascote">
-                    <h2>Defina seu Desafio</h2>
+            <div id="main-content-area">
+                
+                <div id="user-trilhas-view" class="content-view" style="display: none;">
+                    <div id="user-trilhas-container">
+                        <h2>Gerenciar Trilhas Salvas</h2>
+                        <div id="trilhas-list">
+                            </div>
+                        <div class="modal-actions">
+                            <button onclick="showPreDefinedCoursesView()" class="btn-success">➕ Criar Nova Trilha</button>
+                        </div>
+                    </div>
                 </div>
-                
-                <label for="tema">Tema ou Tecnologia:</label>
-                <input type="text" id="tema" placeholder="Ex: Programação Python, Cloud Computing, etc." required>
-                
-                <label for="nivel">Nível de Dificuldade:</label>
-                <select id="nivel">
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                </select>
-                
-                <label for="objetivo">Objetivo Específico (Opcional):</label>
-                <textarea id="objetivo" placeholder="Ex: Aprender a criar um backend com Node.js e Express."></textarea>
-                
-                <button id="btnGerar" class="btn-primary">Gerar Trilha 🚀</button>
-            </div>
 
-            <div id="roadmap-container">
-                <h2>Sua Trilha de Estudos</h2>
-                <div id="roadmap" class="roadmap-grid">
-                    <p class="placeholder-text">Preencha o formulário ao lado e gere sua primeira trilha!</p>
+                <div id="predefined-courses-view" class="content-view" style="display: none;">
+                    <div id="predefined-courses-container">
+                        <h2>Escolha um Curso Rápido</h2>
+                        <p>Selecione um curso pré-definido abaixo para começar imediatamente ou crie a sua trilha personalizada.</p>
+                        
+                        <div id="predefined-courses-list">
+                            </div>
+
+                        <button onclick="showFormView()" class="btn-primary btn-custom-create">💡 Criar Trilha Personalizada (Usar IA)</button>
+                    </div>
                 </div>
+
+
+                <div id="form-view" class="content-view" style="display: none;">
+                    <div class="controles">
+                        <div class="mascote-area">
+                             <img src="mascote.png" alt="Mascote Quackademy" class="mascote">
+                            <h2>Defina seu Desafio (Via IA)</h2>
+                        </div>
+                        
+                        <label for="tema">Tema ou Tecnologia:</label>
+                        <input type="text" id="tema" placeholder="Ex: Programação Python, Cloud Computing, etc." required>
+                        
+                        <label for="nivel">Nível de Dificuldade:</label>
+                        <select id="nivel">
+                            <option value="Iniciante">Iniciante</option>
+                            <option value="Intermediário">Intermediário</option>
+                            <option value="Avançado">Avançado</option>
+                        </select>
+                        
+                        <label for="objetivo">Objetivo Específico (Opcional):</label>
+                        <textarea id="objetivo" placeholder="Ex: Aprender a criar um backend com Node.js e Express."></textarea>
+                        
+                        <button id="btnGerar" class="btn-primary">Gerar Trilha 🚀</button>
+                        
+                        <div class="modal-actions">
+                            <button onclick="showPreDefinedCoursesView()" class="btn-secondary" style="width: auto;">⬅ Voltar aos Cursos Prontos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="roadmap-view" class="content-view" style="display: none;">
+                    <div id="roadmap-container">
+                        <h2 id="roadmap-title">Sua Trilha de Estudos</h2>
+                        <div id="roadmap" class="roadmap-grid">
+                            <p class="placeholder-text">Preencha o formulário e gere sua primeira trilha!</p>
+                        </div>
+                        <div class="modal-actions" style="text-align: right;">
+                             <button onclick="showUserTrilhasView()" class="btn-secondary" style="width: auto;">⬅ Voltar a Minhas Trilhas</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="etapa-view" class="content-view" style="display: none;">
+                    <div id="etapa-container">
+                        <h2 id="etapa-titulo"></h2>
+                        <div id="etapa-conteudo"></div>
+                        <div class="modal-actions"> 
+                            <button onclick="showRoadmapView()" class="btn-secondary">⬅ Voltar à Trilha</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="material-view" class="content-view" style="display: none;">
+                    <div id="material-container">
+                        <h2 id="material-titulo"></h2>
+                        <div id="material-conteudo"></div>
+                        <div class="modal-actions">
+                            <button id="btnMaterialVoltar" class="btn-secondary">⬅ Voltar à Etapa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="flashcard-view" class="content-view" style="display: none;">
+                    <div id="flashcard-container">
+                        <h2 id="flashcard-titulo"></h2>
+                        <div id="flashcard-display">
+                            </div>
+                        <div class="modal-actions">
+                            <button id="btnFlashcardVoltar" class="btn-secondary">⬅ Voltar à Etapa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="simulado-etapa-view" class="content-view" style="display: none;">
+                    <div id="simulado-etapa-container">
+                        <h2 id="simulado-etapa-titulo"></h2>
+                        <div id="simulado-etapa-conteudo">
+                            </div>
+                        <div id="simulado-etapa-botoes" class="modal-actions">
+                            </div>
+                        <div class="modal-actions">
+                            <button id="btnSimuladoEtapaVoltar" class="btn-secondary">⬅ Voltar à Etapa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-view" class="content-view" style="display: none;">
+                    <div id="chat-container">
+                        <div id="chat-header-view">
+                            Patolindo - Seu Assistente de Estudos <span id="chat-counter">(5 Perguntas)</span>
+                        </div>
+                        <div id="chat-messages">
+                            </div>
+                        <div id="chat-input-area">
+                            <input type="text" id="chat-input" placeholder="Sua pergunta..." disabled>
+                            <button id="chat-send-button" disabled>Enviar</button>
+                        </div>
+                        <div class="modal-actions" style="border-top: 1px solid #eee; padding-top: 15px;">
+                            <button id="chat-exit-button" class="btn-secondary">⬅ Sair do Chat</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modal-titulo"></h2>
-            <div id="modal-conteudo">
-                </div>
-        </div>
-    </div>
+    <button id="chat-button" title="Abrir Chatbot Patolindo">
+        🦆
+    </button>
 
     <script src="script.js"></script>
 </body>
