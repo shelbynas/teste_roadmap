@@ -17,7 +17,7 @@ let currentUser = {
 // Armazena todos os dados de usuários no localStorage
 let allUsersData = {}; 
 
-let modalState = {}; 
+let modalState = {}; 
 let patolindoState = {
     questionsLeft: 5,
     history: [],
@@ -94,1050 +94,699 @@ const preDefinedRoadmaps = [
             }
         ]
     }
-];
+]; 
 
-
-// --- FUNÇÕES DE PERSISTÊNCIA (ATUALIZADAS) ---
-
-function loadAllUsersData() {
-    const data = localStorage.getItem('quackademyAllUsers');
-    if (data) {
-        allUsersData = JSON.parse(data);
-    }
-}
-
-function saveAllUsersData() {
-    localStorage.setItem('quackademyAllUsers', JSON.stringify(allUsersData));
-}
-
-function loadUserData(username) {
-    loadAllUsersData();
-    
-    if (!username || username === 'Convidado') {
-        currentUser.name = 'Convidado';
-        currentUser.trilhas = []; // Convidado não tem trilhas salvas
-        currentUser.currentTrilhaIndex = -1;
-    } else {
-        const userData = allUsersData[username];
-        if (userData) {
-            currentUser.name = username;
-            currentUser.trilhas = userData.trilhas || [];
-            currentUser.currentTrilhaIndex = userData.currentTrilhaIndex || -1;
-        } else {
-            // Novo usuário
-            currentUser.name = username;
-            currentUser.trilhas = [];
-            currentUser.currentTrilhaIndex = -1;
-            allUsersData[username] = { trilhas: [], currentTrilhaIndex: -1, password: document.getElementById('password').value }; // Salva a senha (simulada)
+// --- MODIFICAÇÃO DE ACESSIBILIDADE: FUNÇÃO AUXILIAR DE FOCO (TalkBack/NVDA) ---
+function setFocusToNewView(viewId) {
+    const viewElement = viewMap[viewId];
+    if (viewElement) {
+        // Tenta focar no H2, H1 ou no próprio container
+        const focusableElement = viewElement.querySelector('h1, h2, h3') || viewElement;
+        
+        // Garante que o elemento seja focusable para leitores de tela
+        if (!focusableElement.hasAttribute('tabindex')) {
+            focusableElement.setAttribute('tabindex', '-1'); 
         }
+        focusableElement.focus();
     }
-    document.getElementById("userNameDisplay").innerText = currentUser.name;
-    saveAllUsersData();
-    updateTrilhasCountDisplay();
 }
 
-function saveUserTrilhas() {
-    if (currentUser.name && currentUser.name !== 'Convidado') {
-        allUsersData[currentUser.name] = {
-            ...allUsersData[currentUser.name],
-            trilhas: currentUser.trilhas,
-            currentTrilhaIndex: currentUser.currentTrilhaIndex
-        };
-        saveAllUsersData();
-    }
-    updateTrilhasCountDisplay();
-}
-
-function updateTrilhasCountDisplay() {
-    const count = currentUser.trilhas ? currentUser.trilhas.length : 0;
-    document.getElementById("btnMinhasTrilhas").innerText = `Minhas Trilhas (${count})`;
-    document.getElementById("btnMinhasTrilhas").disabled = currentUser.name === 'Convidado';
-}
-
-// --- NOVO: CONTROLE DE FLUXO DE AUTENTICAÇÃO --- 
-function showLoginView() {
-    document.getElementById("login-screen").style.display = 'flex';
-    document.getElementById("welcome-screen").style.display = 'none';
-    document.getElementById("explanation-screen").style.display = 'none';
-    document.getElementById("main-app").style.display = 'none';
-    document.getElementById("predefined-courses-view").style.display = 'none';
-    
-    // Garante que os campos de login estejam limpos
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('auth-message').innerText = '';
-}
-
-function handleAuthSubmit(e) {
-    e.preventDefault();
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const authMessage = document.getElementById('auth-message');
-    
-    if (username.toLowerCase() === 'convidado') {
-        authMessage.innerText = "Nome de usuário 'Convidado' é reservado. Escolha outro.";
-        return;
-    }
-    if (username.length < 3 || password.length < 3) {
-        authMessage.innerText = "Nome de usuário e senha devem ter no mínimo 3 caracteres.";
-        return;
-    }
-
+// --- FUNÇÕES DE PERSISTÊNCIA ---
+function loadAllUsersData() { 
+    const data = localStorage.getItem('quackademyAllUsers'); 
+    if (data) { 
+        allUsersData = JSON.parse(data); 
+    } 
+} 
+function saveAllUsersData() { 
+    localStorage.setItem('quackademyAllUsers', JSON.stringify(allUsersData)); 
+} 
+function loadUserData(username) { 
     loadAllUsersData(); 
-
-    let userExists = allUsersData[username];
-
-    if (userExists) {
-        // Tenta Logar
-        if (userExists.password === password) {
-            loadUserData(username);
-            authMessage.innerText = `Login bem-sucedido para ${username}!`;
-            showMainApp(true); // Indica que o usuário já existe
-        } else {
-            authMessage.innerText = "Senha incorreta.";
-        }
-    } else {
-        // Tenta Cadastrar (Simulado)
-        loadUserData(username); // Cria o novo usuário
-        authMessage.innerText = `Usuário ${username} criado e logado!`;
-        showWelcomeScreen(); // Novo usuário vê o fluxo completo
-    }
+    if (!username || username === 'Convidado') { 
+        currentUser.name = 'Convidado'; 
+        currentUser.trilhas = []; // Convidado não tem trilhas salvas 
+        currentUser.currentTrilhaIndex = -1; 
+    } else { 
+        const userData = allUsersData[username]; 
+        if (userData) { 
+            currentUser.name = username; 
+            currentUser.trilhas = userData.trilhas || []; 
+            currentUser.currentTrilhaIndex = userData.currentTrilhaIndex || -1; 
+        } else { 
+            // Novo usuário 
+            currentUser.name = username; 
+            currentUser.trilhas = []; 
+            currentUser.currentTrilhaIndex = -1; 
+            allUsersData[username] = { trilhas: [], currentTrilhaIndex: -1, password: document.getElementById('password').value }; // Salva a senha (simulada) 
+        } 
+    } 
+    document.getElementById("userNameDisplay").innerText = currentUser.name; 
+    saveAllUsersData(); 
+    updateTrilhasCountDisplay(); 
+} 
+function saveUserTrilhas() { 
+    if (currentUser.name && currentUser.name !== 'Convidado') { 
+        allUsersData[currentUser.name] = { ...allUsersData[currentUser.name], trilhas: currentUser.trilhas, currentTrilhaIndex: currentUser.currentTrilhaIndex }; 
+        saveAllUsersData(); 
+    } 
+    updateTrilhasCountDisplay(); 
+} 
+function updateTrilhasCountDisplay() { 
+    const count = currentUser.trilhas ? currentUser.trilhas.length : 0; 
+    document.getElementById("btnMinhasTrilhas").innerText = `Minhas Trilhas (${count})`; 
+    document.getElementById("btnMinhasTrilhas").disabled = (count === 0 && currentUser.name === 'Convidado');
 }
 
-function handleSkipLogin() {
-    loadUserData('Convidado');
-    showWelcomeScreen();
-}
-
-// --- Listeners de Transição Inicial ---
-
-document.addEventListener("DOMContentLoaded", () => {
-    
-    showLoginView(); // Inicia na tela de login
-
-    document.getElementById("login-form").addEventListener("submit", handleAuthSubmit);
-    document.getElementById("btnSkipLogin").addEventListener("click", handleSkipLogin);
-    
-    document.getElementById("btnWelcomeContinue").addEventListener("click", showExplanationScreen);
-    
-    // 🐛 CORREÇÃO APLICADA AQUI: Chama showMainApp que decide o próximo passo (Cursos Pré-Definidos)
-    document.getElementById("btnExplanationContinue").addEventListener("click", () => showMainApp(false)); 
-    
-    document.getElementById("btnGerar").addEventListener("click", gerarRoadmap);
-    
-    // Listeners dos botões de voltar (dentro das telas de conteúdo)
-    document.getElementById("btnMaterialVoltar").addEventListener("click", () => showEtapaView(modalState.currentEtapa));
-    document.getElementById("btnFlashcardVoltar").addEventListener("click", () => showEtapaView(modalState.currentEtapa));
-    document.getElementById("btnSimuladoEtapaVoltar").addEventListener("click", () => showEtapaView(modalState.currentEtapa));
-    
-    // --- Listeners do Chatbot ---
-    document.getElementById("chat-button").addEventListener("click", () => showChatView(patolindoState.lastView));
-    document.getElementById("chat-exit-button").addEventListener("click", () => showLastView());
-    document.getElementById("chat-send-button").addEventListener("click", handleChatSend);
-    document.getElementById("chat-input").addEventListener("keypress", (e) => {
-        if (e.key === 'Enter') handleChatSend();
-    });
-    document.getElementById("chat-input").addEventListener("input", updateSendButtonState);
-});
-
-// Funções de transição de telas iniciais
-function showWelcomeScreen() {
-    document.getElementById("login-screen").style.display = 'none';
-    document.getElementById("welcome-screen").style.display = 'flex';
-}
-
-function showExplanationScreen() {
-    document.getElementById("welcome-screen").style.display = 'none';
-    document.getElementById("explanation-screen").style.display = 'flex';
-}
-
-function showMainApp(isExistingUser = false) {
-    document.getElementById("explanation-screen").style.display = 'none';
-    document.getElementById("welcome-screen").style.display = 'none';
-    document.getElementById("login-screen").style.display = 'none';
-    document.getElementById("main-app").style.display = 'block';
-    
-    if (isExistingUser && currentUser.trilhas.length > 0) {
-         // Usuário recorrente vai para o Gerenciamento
-         showUserTrilhasView();
-    } else {
-         // Usuário novo ou sem trilhas vai para a lista de cursos
-         showPreDefinedCoursesView();
-    }
-}
-
-// --- LÓGICA DE NAVEGAÇÃO SPA ---
-
+// --- Mapeamento de Elementos ---
 const viewMap = {
+    "login-screen": document.getElementById("login-screen"),
+    "welcome-screen": document.getElementById("welcome-screen"),
+    "explanation-screen": document.getElementById("explanation-screen"),
+    "main-app": document.getElementById("main-app"),
     "user-trilhas-view": document.getElementById("user-trilhas-view"),
-    "predefined-courses-view": document.getElementById("predefined-courses-view"), // NOVO
+    "predefined-courses-view": document.getElementById("predefined-courses-view"),
     "form-view": document.getElementById("form-view"),
     "roadmap-view": document.getElementById("roadmap-view"),
     "etapa-view": document.getElementById("etapa-view"),
     "material-view": document.getElementById("material-view"),
-    "flashcard-view": document.getElementById("flashcard-view"), 
-    "simulado-etapa-view": document.getElementById("simulado-etapa-view"), 
-    "chat-view": document.getElementById("chat-view")
+    "flashcard-view": document.getElementById("flashcard-view"),
+    "simulado-etapa-view": document.getElementById("simulado-etapa-view"),
+    "chat-view": document.getElementById("chat-view"),
+    "chat-button": document.getElementById("chat-button") 
 };
 
+// --- FUNÇÕES DE NAVEGAÇÃO E VIEW RENDERING ---
+
 function hideAllViews() {
-    for (const key in viewMap) {
-        viewMap[key].style.display = 'none';
-    }
+    Object.keys(viewMap).forEach(key => {
+        const element = viewMap[key];
+        if (element && element.id && element.id.endsWith('-view')) {
+            element.style.display = 'none';
+        }
+        if (key === 'form-view' && element) {
+            element.style.display = 'none';
+        }
+    });
 }
 
-function updateChatButtonVisibility(isVisible) {
-    // Esconde o chat se o usuário for convidado
-    if (currentUser.name === 'Convidado') {
-        document.getElementById("chat-button").style.display = 'none';
+function toggleAppDisplay(show) {
+    viewMap["login-screen"].style.display = 'none';
+    viewMap["welcome-screen"].style.display = 'none';
+    viewMap["explanation-screen"].style.display = 'none';
+    
+    if (show) {
+        viewMap["main-app"].style.display = 'block';
+        viewMap["chat-button"].style.display = 'flex';
     } else {
-         document.getElementById("chat-button").style.display = isVisible ? 'block' : 'none';
+        viewMap["main-app"].style.display = 'none';
+        viewMap["chat-button"].style.display = 'none';
     }
 }
 
-// --- TELA DE GERENCIAMENTO DE TRILHAS ---
 function showUserTrilhasView() {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); 
-
-    if (currentUser.name === 'Convidado') {
-        showPreDefinedCoursesView();
-        return;
-    }
-    
+    document.getElementById("trilhas-list").innerHTML = '';
+    renderTrilhasList(); 
     viewMap["user-trilhas-view"].style.display = 'block';
-
-    const trilhasList = document.getElementById("trilhas-list");
-    trilhasList.innerHTML = '';
-    
-    if (currentUser.trilhas.length === 0) {
-        trilhasList.innerHTML = '<p class="placeholder-text">Nenhuma trilha de estudo salva. Crie uma nova para começar!</p>';
-        return;
-    }
-
-    // Garante que a trilha ativa está no topo
-    let trilhasOrdenadas = [...currentUser.trilhas];
-    if (currentUser.currentTrilhaIndex !== -1) {
-        const activeTrilha = trilhasOrdenadas.splice(currentUser.currentTrilhaIndex, 1)[0];
-        trilhasOrdenadas.unshift(activeTrilha); // Coloca a ativa na frente
-    }
-
-    trilhasOrdenadas.forEach((trilha, index) => {
-        // Encontra o índice original para ações
-        const originalIndex = currentUser.trilhas.findIndex(t => t.id === trilha.id); 
-        const isActive = currentUser.currentTrilhaIndex === originalIndex;
-        
-        const card = document.createElement('div');
-        card.className = 'trilha-card';
-        card.style.borderLeft = isActive ? '5px solid var(--color-success)' : '1px solid #ddd';
-
-        const info = `
-            <div class="trilha-info">
-                <h4>${trilha.tema} (${trilha.nivel}) ${isActive ? '<b>(ATIVA)</b>' : ''}</h4>
-                <p>Objetivo: ${trilha.objetivo || 'Não especificado'}</p>
-                <p>Etapas: ${trilha.etapas.length}</p>
-            </div>
-        `;
-
-        const actions = `
-            <div class="trilha-actions">
-                <button class="btn-success" onclick="loadAndShowRoadmap(${originalIndex})" style="${isActive ? 'display: none;' : ''}">Abrir</button>
-                <button class="btn-danger" onclick="deleteTrilha(${originalIndex})">Excluir</button>
-            </div>
-        `;
-
-        card.innerHTML = info + actions;
-        trilhasList.appendChild(card);
-    });
-
-    // Se houver uma trilha ativa, carrega ela
-    if (currentUser.currentTrilhaIndex !== -1) {
-         loadRoadmap(currentUser.trilhas[currentUser.currentTrilhaIndex], true); // Carrega a ativa, mas não mostra o roadmap
-    }
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("user-trilhas-view"); 
 }
 
-// --- NOVO: TELA DE CURSOS PRÉ-DEFINIDOS ---
 function showPreDefinedCoursesView() {
-    // Garante que a aplicação principal está visível antes de exibir a sub-tela
-    document.getElementById("main-app").style.display = 'block'; 
-    
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); 
+    document.getElementById("predefined-courses-list").innerHTML = renderPreDefinedCourses();
     viewMap["predefined-courses-view"].style.display = 'block';
-
-    const coursesListDiv = document.getElementById("predefined-courses-list");
-    coursesListDiv.innerHTML = '';
-    
-    preDefinedRoadmaps.forEach(categoryData => {
-        const categoryHtml = document.createElement('div');
-        categoryHtml.className = 'course-category';
-        categoryHtml.innerHTML = `<h3>${categoryData.category}</h3>`;
-        
-        const gridHtml = document.createElement('div');
-        gridHtml.className = 'courses-grid';
-
-        categoryData.courses.forEach(course => {
-            const card = document.createElement('div');
-            card.className = 'course-card';
-            // Prepara o objeto para ser passado na função de carregamento
-            const courseString = JSON.stringify(course).replace(/'/g, "\\'"); 
-            card.setAttribute('onclick', `loadPreDefinedRoadmap('${courseString}')`);
-
-            card.innerHTML = `
-                <h4>${course.tema}</h4>
-                <p>Nível: <b>${course.nivel}</b></p>
-                <p>Objetivo: ${course.objetivo}</p>
-            `;
-            gridHtml.appendChild(card);
-        });
-        
-        categoryHtml.appendChild(gridHtml);
-        coursesListDiv.appendChild(categoryHtml);
-    });
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("predefined-courses-view");
 }
 
 function showFormView() {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); 
-    viewMap["form-view"].style.display = 'flex'; 
+    viewMap["form-view"].style.display = 'flex';
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("form-view");
 }
 
 function showRoadmapView() {
     hideAllViews();
     window.scrollTo(0, 0); 
-    // Mostra o chat apenas se houver uma trilha carregada e não for convidado
-    const currentTrilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
-    updateChatButtonVisibility(currentTrilha && currentUser.name !== 'Convidado' ? true : false);
-    patolindoState.lastView = "roadmap-view";
+    renderRoadmap(); // Atualiza o conteúdo do roadmap
     viewMap["roadmap-view"].style.display = 'block';
+    
+    // Ativa o chat se a trilha estiver ativa
+    const isTrilhaActive = currentUser.currentTrilhaIndex !== -1;
+    document.getElementById("chat-button").style.display = isTrilhaActive ? 'flex' : 'none';
+    patolindoState.lastView = "roadmap-view";
+    
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("roadmap-view"); 
 }
 
 function showEtapaView(etapa) {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(true); 
-    patolindoState.lastView = "etapa-view";
+    window.scrollTo(0, 0);
+    renderEtapa(etapa);
     viewMap["etapa-view"].style.display = 'block';
+    patolindoState.lastView = "etapa-view";
     
-    modalState.currentEtapa = etapa; 
-    document.getElementById("etapa-titulo").innerText = etapa.titulo;
-    
-    const conteudo = etapa.topicos.map(t => {
-        const topicoEscapado = t.tópico.replace(/'/g,"\\'"); 
-        const materialLink = t.material ? t.material.replace(/'/g,"\\'") : "#"; 
-
-        return `
-            <div class="topico-bloco">
-                <button class="material-btn" onclick="showMaterialView('${topicoEscapado}', '${materialLink}')">
-                    📚 ${t.tópico}
-                </button>
-                <button class="btn-flashcard" onclick="showFlashcardView('${topicoEscapado}')">🧠 Gerar Flashcards</button>
-            </div>
-        `;
-    }).join("");
-
-    // BOTÃO DE SIMULADO DA ETAPA
-    const simularTudoBtn = `<button class="btn-primary btn-simulado-etapa" onclick="showSimuladoEtapaView()">🎯 Gerar Simulado Completo da Etapa (${etapa.topicos.length} Tópicos)</button>`;
-
-    document.getElementById("etapa-conteudo").innerHTML = `
-        <h3>📌 Atividade prática:</h3>
-        <p>${etapa.atividade}</p>
-        <h3>📚 Tópicos de Estudo:</h3>
-        <div class="topicos-container">${conteudo}</div>
-        ${simularTudoBtn}
-    `;
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("etapa-view");
 }
 
 function showMaterialView(topico, material) {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(true); 
-    patolindoState.lastView = "material-view";
+    window.scrollTo(0, 0);
+    renderMaterial(topico, material);
     viewMap["material-view"].style.display = 'block';
+    patolindoState.lastView = "material-view";
     
-    fetchAndRenderMaterial(topico, material);
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("material-view");
 }
 
 function showFlashcardView(topico) {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); // Esconde o chat no modo Flashcard
-    patolindoState.lastView = "flashcard-view";
+    window.scrollTo(0, 0);
+    renderFlashcard(topico);
     viewMap["flashcard-view"].style.display = 'block';
-
-    fetchAndRenderFlashcards(topico);
+    patolindoState.lastView = "flashcard-view";
+    
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("flashcard-view");
 }
 
 function showSimuladoEtapaView() {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); // Esconde o chat no modo Simulado
-    patolindoState.lastView = "simulado-etapa-view";
+    window.scrollTo(0, 0);
+    // renderSimuladoEtapa já será chamado dentro do generateSimulado() ou startSimulado()
     viewMap["simulado-etapa-view"].style.display = 'block';
+    patolindoState.lastView = "simulado-etapa-view";
     
-    fetchAndRenderSimuladoEtapa();
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("simulado-etapa-view");
 }
 
 function showChatView() {
     hideAllViews();
-    window.scrollTo(0, 0); 
-    updateChatButtonVisibility(false); 
-    viewMap["chat-view"].style.display = 'block';
-    resetPatolindoSession();
+    window.scrollTo(0, 0);
+    document.getElementById("chat-messages").innerHTML = ''; // Limpa mensagens anteriores
+    document.getElementById("chat-counter").innerText = `(${patolindoState.questionsLeft} Perguntas)`;
+    
+    // Adiciona mensagem de boas vindas do Patolindo
+    appendMessage("Patolindo: Olá! Sou seu assistente. Estou aqui para tirar dúvidas sobre sua trilha de estudos atual. O que você precisa?", 'bot');
+
+    viewMap["chat-view"].style.display = 'flex';
+    
+    // MODIFICAÇÃO A11y: Focar no título da nova view
+    setFocusToNewView("chat-view");
 }
 
-function showLastView() {
-    // Volta para a view anterior salva
+function hideChatView() {
     if (patolindoState.lastView === "roadmap-view") {
         showRoadmapView();
-    } else if (patolindoState.lastView === "etapa-view" && modalState.currentEtapa) {
+    } else if (patolindoState.lastView === "etapa-view") {
         showEtapaView(modalState.currentEtapa);
-    } else if (patolindoState.lastView === "material-view" && modalState.currentEtapa) {
-         showEtapaView(modalState.currentEtapa);
+    }
+    // Retorna para a última view principal
+    viewMap[patolindoState.lastView].style.display = 'block';
+}
+
+function toggleChatWindow() {
+    const chatContainer = viewMap["chat-view"];
+    if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+        showChatView();
     } else {
-        showRoadmapView(); 
+        hideChatView();
     }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE TRILHAS (ATUALIZADAS PARA CONVIDADO) ---
-
-// Carrega os dados da trilha (roadmap) e exibe o RoadmapView
-function loadRoadmap(trilha, skipViewChange = false) {
+// --- FUNÇÕES DE RENDERIZAÇÃO DE CONTEÚDO ---
+function renderRoadmap() {
+    const roadmapContainer = document.getElementById("roadmap");
+    const trilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
+    
     if (!trilha || !trilha.etapas) {
-        console.error("Trilha inválida.");
+        roadmapContainer.innerHTML = '<p class="placeholder-text">Nenhuma trilha ativa. Por favor, crie uma trilha personalizada.</p>';
+        document.getElementById("roadmap-title").innerText = "Sua Trilha de Estudos";
         return;
     }
 
-    modalState.etapas = trilha.etapas;
-    currentTheme = trilha.tema;
-    document.getElementById("roadmap-title").innerText = `Sua Trilha: ${trilha.tema} (${trilha.nivel}) - ${currentUser.name}`;
+    document.getElementById("roadmap-title").innerText = `Trilha: ${trilha.tema} (${trilha.nivel})`;
     
-    const roadmapDiv = document.getElementById("roadmap");
-    roadmapDiv.innerHTML = "";
+    let html = '';
+    trilha.etapas.forEach((etapa, index) => {
+        html += `<div class="bloco" onclick="showEtapaView(${index})">
+                    <span style="font-size: 0.8em; color: #555;">Etapa ${index + 1}</span>
+                    <h4>${etapa.titulo}</h4>
+                </div>`;
+    });
+    
+    roadmapContainer.innerHTML = html;
+}
 
-    trilha.etapas.forEach(etapa => {
-        const blocoDiv = document.createElement("div");
-        blocoDiv.className = "bloco";
-        blocoDiv.innerText = etapa.titulo;
-        blocoDiv.onclick = () => showEtapaView(etapa);
-        roadmapDiv.appendChild(blocoDiv);
+function renderEtapa(etapaIndex) {
+    const trilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
+    const etapa = trilha.etapas[etapaIndex];
+    
+    if (!etapa) return;
+
+    modalState.currentEtapa = etapaIndex; // Salva o índice da etapa atual para navegação
+    
+    document.getElementById("etapa-titulo").innerText = etapa.titulo;
+    
+    let html = `
+        <p><strong>Descrição:</strong> ${etapa.atividade}</p>
+        
+        <h3>Tópicos de Estudo</h3>
+        <div class="topicos-container">
+    `;
+    
+    etapa.topicos.forEach(topico => {
+        html += `
+            <div class="topico-bloco">
+                <button class="material-btn" onclick="showMaterialView('${topico.tópico}', '${topico.material}')">
+                    📚 Material: ${topico.tópico}
+                </button>
+                <button class="btn-flashcard" onclick="showFlashcardView('${topico.tópico}')">
+                    🧠 Flashcards
+                </button>
+            </div>
+        `;
+    });
+    
+    html += `</div>
+        <button class="btn-primary btn-simulado-etapa" id="btnStartSimulado">
+            ✅ Simulado da Etapa (${etapa.topicos.length * 5} Questões)
+        </button>
+    `;
+
+    document.getElementById("etapa-conteudo").innerHTML = html;
+    
+    // Adicionar Listener para o botão Simulado
+    document.getElementById("btnStartSimulado").onclick = () => {
+         // Prepara para geração (simulada) e navegação
+        document.getElementById("simulado-etapa-titulo").innerText = `Simulado: ${etapa.titulo}`;
+        document.getElementById("simulado-etapa-conteudo").innerHTML = `<p class="placeholder-text">Gerando <strong>${etapa.topicos.length * 5}</strong> questões exclusivas para esta etapa...</p>`;
+        document.getElementById("simulado-etapa-botoes").innerHTML = '';
+        showSimuladoEtapaView(); // Navega para a view do simulado com placeholder
+        generateSimulado(etapaIndex); // Inicia a geração
+    };
+}
+
+function renderMaterial(topico, material) {
+    document.getElementById("material-titulo").innerText = `Material de Apoio: ${topico}`;
+    
+    let html = `
+        <p>O material gerado pela IA (em uma versão completa) estaria aqui.</p>
+        <p>Para esta demonstração, usamos um link direto para um material relevante:</p>
+        <a href="${material}" target="_blank" class="btn-primary" style="text-align: center; text-decoration: none;">Acessar Material Externo</a>
+        <p style="margin-top: 15px;">Acesse para aprofundar seu conhecimento sobre <strong>${topico}</strong>.</p>
+    `;
+    
+    document.getElementById("material-conteudo").innerHTML = html;
+
+    document.getElementById("btnMaterialVoltar").onclick = () => showEtapaView(modalState.currentEtapa);
+}
+
+function renderFlashcard(topico) {
+    document.getElementById("flashcard-titulo").innerText = `Flashcards: ${topico}`;
+    
+    // Simulação de Flashcards
+    const flashcards = [
+        { front: `Qual a definição de ${topico}?`, back: `Resposta chave de ${topico}.` },
+        { front: `Cite um exemplo prático de ${topico}.`, back: `Exemplo prático de ${topico}.` },
+        { front: `Por que ${topico} é importante?`, back: `Razão da importância de ${topico}.` }
+    ];
+
+    let currentFlashcardIndex = 0;
+    const displayArea = document.getElementById("flashcard-display");
+
+    function showCard(index) {
+        const card = flashcards[index];
+        displayArea.innerHTML = `
+            <div class="flashcard" id="current-flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-face flashcard-front">
+                        <p style="font-weight: bold;">Frente (Pergunta)</p>
+                        <p>${card.front}</p>
+                    </div>
+                    <div class="flashcard-face flashcard-back">
+                        <p style="font-weight: bold;">Verso (Resposta)</p>
+                        <p>${card.back}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flashcard-navigation">
+                <button id="btnPrevCard" class="btn-secondary" disabled>Anterior</button>
+                <button id="btnNextCard" class="btn-primary">Próximo</button>
+            </div>
+        `;
+
+        // Adicionar Listeners de navegação
+        const btnPrev = document.getElementById("btnPrevCard");
+        const btnNext = document.getElementById("btnNextCard");
+
+        btnPrev.disabled = index === 0;
+        btnNext.disabled = index === flashcards.length - 1;
+
+        btnPrev.onclick = () => {
+            if (currentFlashcardIndex > 0) {
+                currentFlashcardIndex--;
+                showCard(currentFlashcardIndex);
+            }
+        };
+        btnNext.onclick = () => {
+            if (currentFlashcardIndex < flashcards.length - 1) {
+                currentFlashcardIndex++;
+                showCard(currentFlashcardIndex);
+            }
+        };
+    }
+
+    if (flashcards.length > 0) {
+        showCard(currentFlashcardIndex);
+    } else {
+        displayArea.innerHTML = '<p class="placeholder-text">Não há flashcards disponíveis para este tópico.</p>';
+    }
+
+    document.getElementById("btnFlashcardVoltar").onclick = () => showEtapaView(modalState.currentEtapa);
+}
+
+
+function renderPreDefinedCourses() {
+    let html = '';
+    preDefinedRoadmaps.forEach(cat => {
+        html += `<div class="course-category">
+                    <h3>${cat.category}</h3>
+                    <div class="courses-grid">`;
+        
+        cat.courses.forEach(course => {
+            html += `
+                <div class="course-card" onclick="createCourseFromPredefined('${course.tema}', '${course.nivel}', '${course.objetivo}')">
+                    <h4>${course.tema}</h4>
+                    <p>${course.nivel} - ${course.objetivo}</p>
+                </div>
+            `;
+        });
+
+        html += `</div></div>`;
+    });
+    return html;
+}
+
+function renderTrilhasList() {
+    const listContainer = document.getElementById("trilhas-list");
+    const trilhas = currentUser.trilhas;
+
+    if (trilhas.length === 0) {
+        listContainer.innerHTML = '<p class="placeholder-text">Você ainda não tem trilhas salvas. Crie uma para começar!</p>';
+        document.getElementById("btnMinhasTrilhas").innerText = 'Minhas Trilhas (0)';
+        return;
+    }
+
+    let html = '';
+    trilhas.forEach((trilha, index) => {
+        const isActive = index === currentUser.currentTrilhaIndex;
+        const status = isActive ? 'Ativa' : 'Inativa';
+        const statusClass = isActive ? 'btn-success' : 'btn-secondary';
+
+        html += `
+            <div class="trilha-card">
+                <div class="trilha-info">
+                    <h4>${trilha.tema} (${trilha.nivel})</h4>
+                    <p>Status: <span style="font-weight: bold; color: ${isActive ? 'var(--color-success)' : '#6c757d'};">${status}</span></p>
+                </div>
+                <div class="trilha-actions">
+                    <button class="${statusClass}" onclick="activateTrilha(${index})" ${isActive ? 'disabled' : ''}>
+                        ${isActive ? 'Ativa' : 'Ativar'}
+                    </button>
+                    <button class="btn-secondary" onclick="deleteTrilha(${index})">Excluir</button>
+                    <button class="btn-primary" onclick="showRoadmapFromTrilha(${index})">Ver Roadmap</button>
+                </div>
+            </div>
+        `;
     });
 
-    // Se não for para pular, mostra a view
-    if (!skipViewChange) {
-        showRoadmapView();
-    }
+    listContainer.innerHTML = html;
 }
 
-// Define a trilha ativa, carrega e exibe
-function loadAndShowRoadmap(index) {
+// --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
+
+function activateTrilha(index) {
     if (index >= 0 && index < currentUser.trilhas.length) {
         currentUser.currentTrilhaIndex = index;
-        loadRoadmap(currentUser.trilhas[index]);
-        if (currentUser.name !== 'Convidado') {
-            saveUserTrilhas(); // Salva o índice ativo
-        }
-    }
-}
-
-// NOVO: Carrega e salva um roadmap pré-definido
-function loadPreDefinedRoadmap(courseString) {
-    try {
-        const course = JSON.parse(courseString);
-        
-        const novaTrilha = {
-            id: Date.now(),
-            tema: course.tema,
-            nivel: course.nivel,
-            objetivo: course.objetivo,
-            etapas: course.etapas
-        };
-        
-        // Se o usuário não for convidado, a trilha é salva
-        if (currentUser.name !== 'Convidado') {
-            currentUser.trilhas.push(novaTrilha);
-            currentUser.currentTrilhaIndex = currentUser.trilhas.length - 1; // Define como a trilha ativa
-            saveUserTrilhas(); 
-        } else {
-             // Usuário Convidado: usa uma estrutura temporária
-            currentUser.trilhas = [novaTrilha];
-            currentUser.currentTrilhaIndex = 0;
-        }
-        
-        // Carrega a trilha recém-criada
-        loadRoadmap(novaTrilha);
-
-    } catch (e) {
-        alert("Erro ao carregar o curso pré-definido.");
-        console.error("Erro ao parsear curso pré-definido:", e);
-        showPreDefinedCoursesView();
+        saveUserTrilhas();
+        renderTrilhasList(); 
+        updateTrilhasCountDisplay();
+        showRoadmapView();
     }
 }
 
 function deleteTrilha(index) {
-     if (currentUser.name === 'Convidado') return;
-
-    if (confirm(`Tem certeza que deseja excluir a trilha "${currentUser.trilhas[index].tema}"?`)) {
-        
-        // Remove a trilha
+    if (confirm(`Tem certeza que deseja excluir a trilha: ${currentUser.trilhas[index].tema}?`)) {
         currentUser.trilhas.splice(index, 1);
-        
-        // Se a trilha excluída era a ativa, desativa e carrega a próxima ou o gerenciamento
         if (currentUser.currentTrilhaIndex === index) {
-            currentUser.currentTrilhaIndex = -1;
-            showUserTrilhasView(); // Volta para o gerenciamento
+            currentUser.currentTrilhaIndex = -1; // Desativa se for a trilha atual
         } else if (currentUser.currentTrilhaIndex > index) {
-            // Ajusta o índice ativo se a excluída estava antes dele
-            currentUser.currentTrilhaIndex--;
+            currentUser.currentTrilhaIndex--; // Ajusta o índice
         }
-        
         saveUserTrilhas();
-        showUserTrilhasView(); // Atualiza a lista
+        renderTrilhasList();
+        showUserTrilhasView();
     }
 }
 
-// --- FUNÇÕES DE CONTEÚDO (Roadmap, Material) ---
+function showRoadmapFromTrilha(index) {
+    activateTrilha(index); // Ativa e navega
+}
 
-async function gerarRoadmap() {
-    const tema = document.getElementById("tema").value;
-    const nivel = document.getElementById("nivel").value;
-    const objetivo = document.getElementById("objetivo").value;
-    const roadmapDiv = document.getElementById("roadmap");
-    
-    roadmapDiv.innerHTML = "✨ Gerando roadmap...";
-    showRoadmapView(); 
 
-    if (!tema) {
-        roadmapDiv.innerHTML = "⚠️ Por favor, preencha o campo Tema.";
-        updateChatButtonVisibility(false);
-        return;
-    }
-    
-    // Simulação de delay para a API, pois o processo é lento
-    await new Promise(resolve => setTimeout(resolve, 500)); 
+function createCourseFromPredefined(tema, nivel, objetivo) {
+    document.getElementById("tema").value = tema;
+    document.getElementById("nivel").value = nivel;
+    document.getElementById("objetivo").value = objetivo;
 
-    try {
-        
-        const systemPrompt = `Você é um especialista em educação técnica. Crie um roadmap **detalhado e extenso** com **no mínimo 10 (dez) etapas obrigatórias**. Para cada etapa, liste **no mínimo 4 (quatro) tópicos essenciais** para garantir profundidade no aprendizado. Use mais etapas e tópicos se o tema for complexo. Cada tópico **DEVE incluir uma URL de documentação oficial ou tutorial renomado** no campo 'material'. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório ou blocos de código markdown. O JSON deve seguir este formato: {"etapas": [{"titulo": "Etapa 1: Nome da etapa", "topicos": [{"tópico": "Nome do tópico", "material": "URL de uma fonte externa"}], "atividade": "Descrição da atividade prática"}]}.`;
-        const userPrompt = `Crie um roadmap de estudos detalhado e abrangente para o tema "${tema}" no nível "${nivel}"${objetivo ? ` com objetivo "${objetivo}"` : ""}. Inclua fontes externas de estudo no campo 'material' para todos os tópicos.`;
+    // Simula a submissão do formulário para usar a lógica de geração de roadmap
+    // Neste caso, a lógica do roadmap será simulada, mas a estrutura será salva
+    const course = preDefinedRoadmaps.flatMap(cat => cat.courses).find(c => c.tema === tema);
 
-        const response = await fetch(GROQ_ENDPOINT, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
-            },
-            body: JSON.stringify({ 
-                model: MODEL_NAME,
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt }
-                ],
-                response_format: { type: "json_object" }, 
-                temperature: 0.7 
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Erro API: ${response.status} - ${errorData.error.message || 'Erro desconhecido.'}`);
-        }
-
-        const data = await response.json();
-        let texto = data?.choices?.[0]?.message?.content || "";
-
-        let textoLimpo = texto.trim();
-        let parsed;
-        try {
-            parsed = JSON.parse(textoLimpo);
-        } catch (e) {
-            let jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("Não foi possível extrair JSON da resposta.");
-            parsed = JSON.parse(jsonMatch[0]);
-        }
-        
-        const etapas = parsed.etapas;
-        
-        // Salva ou carrega a nova trilha no contexto do usuário
-        const novaTrilha = {
-            id: Date.now(),
-            tema: tema,
-            nivel: nivel,
-            objetivo: objetivo,
-            etapas: etapas
+    if (course) {
+        const newTrilha = {
+            tema: course.tema,
+            nivel: course.nivel,
+            objetivo: course.objetivo,
+            etapas: course.etapas,
+            generatedAt: new Date().toLocaleDateString()
         };
         
-        // Se o usuário não for convidado, a trilha é salva
-        if (currentUser.name !== 'Convidado') {
-            currentUser.trilhas.push(novaTrilha);
-            currentUser.currentTrilhaIndex = currentUser.trilhas.length - 1; // Define como a trilha ativa
-            saveUserTrilhas(); 
-        } else {
-             // Usuário Convidado: usa uma estrutura temporária
-            currentUser.trilhas = [novaTrilha];
-            currentUser.currentTrilhaIndex = 0;
-        }
+        currentUser.trilhas.push(newTrilha);
+        currentUser.currentTrilhaIndex = currentUser.trilhas.length - 1;
+        saveUserTrilhas();
         
-        // Carrega a trilha recém-criada
-        loadRoadmap(novaTrilha);
-
-    } catch (err) {
-        console.error("Erro:", err);
-        roadmapDiv.innerHTML = `⚠️ Erro ao gerar roadmap. Verifique sua chave API e tente novamente. Causa: ${err.message}.`;
-        updateChatButtonVisibility(false); 
+        // Exibe o roadmap
+        showRoadmapView();
     }
 }
 
-async function fetchAndRenderMaterial(topico, material) {
-    // Recarrega o tema atual da trilha ativa
-    const currentTrilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
-    const currentTheme = currentTrilha ? currentTrilha.tema : "educação";
-    
-    const materialConteudo = document.getElementById("material-conteudo");
-    materialConteudo.innerHTML = `<p>Carregando conteúdo sobre: <strong>${topico}</strong>...</p>`;
-    document.getElementById("material-titulo").innerText = topico; // Define o título
+// --- FUNÇÕES DE COMUNICAÇÃO COM A API GROQ (GERAÇÃO SIMULADA) ---
 
-    
-    try {
-        // ATUALIZAÇÃO NO PROMPT: Detalhado, longo e requer múltiplas fontes citadas
-        const systemPromptMaterial = `Você é um professor especialista em ${currentTheme}. Explique de forma didática, **detalhada e longa** o tópico "${topico}". Utilize o conhecimento de **diversas fontes confiáveis** para enriquecer o texto. Seu conteúdo **DEVE terminar com uma seção 'Fontes Utilizadas'** (ou similar) listando as URLs das referências utilizadas na pesquisa e composição do texto, mesmo que sejam apenas exemplos. Use o formato: 'Fontes Utilizadas: [URL1], [URL2], [URLn]'.`;
-        const userPromptMaterial = `Explique o tópico "${topico}" (Nível: ${document.getElementById("nivel").value}).`;
-
-        const response = await fetch(GROQ_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
-            body: JSON.stringify({ model: MODEL_NAME, messages: [{ role: "system", content: systemPromptMaterial }, { role: "user", content: userPromptMaterial }], temperature: 0.8 })
-        });
-
-        if (!response.ok) { throw new Error(`Erro API: ${response.status}`); }
-        const data = await response.json();
-        let texto = data?.choices?.[0]?.message?.content || "Erro ao gerar conteúdo.";
-
-        // CORREÇÃO: Converte **negrito** para <b>negrito</b> e quebra de linha para <br>
-        texto = texto.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
-        
-        // Extrai e formata as fontes citadas no final do texto (ex: Fontes Utilizadas: URL1, URL2)
-        let sourceHtml = '';
-        const sourceMatch = texto.match(/Fontes Utilizadas:(.*)/i);
-        if (sourceMatch && sourceMatch[1]) {
-            const sources = sourceMatch[1].trim().split(',').map(s => s.trim()).filter(s => s.startsWith('http'));
-            
-            if (sources.length > 0) {
-                sourceHtml = '<h3 style="margin-top: 30px; border-left: 5px solid #28A745; padding-left: 12px; color: #28A745;">🔗 Fontes Utilizadas</h3><ul>';
-                sources.forEach(url => {
-                    sourceHtml += `<li><a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">${url}</a></li>`;
-                });
-                sourceHtml += '</ul>';
-            }
-            // Remove a seção de fontes do corpo principal do texto
-            texto = texto.substring(0, sourceMatch.index).trim();
-        }
-
-        // Adiciona a fonte obrigatória fornecida no roadmap (se existir e não estiver nas fontes do corpo)
-        if (material && material !== 'null' && material.startsWith('http')) {
-            sourceHtml += `<h3 style="margin-top: 30px; border-left: 5px solid var(--color-primary); padding-left: 12px;">📚 Fonte da Trilha</h3><p><a href="${material}" target="_blank" style="color: var(--color-primary-dark); font-weight: bold;">${material} (Abrirá em nova aba)</a></p>`;
-        }
-        
-        if (!sourceHtml) {
-             sourceHtml = '<p style="margin-top: 20px; color: #999;">Nenhuma fonte de estudo externa foi citada pela IA ou no roadmap.</p>';
-        }
-
-        materialConteudo.innerHTML = `<div style="max-height:450px; overflow-y:auto; padding-right:10px;">${texto}</div>${sourceHtml}`;
-
-    } catch (err) {
-        console.error("Erro:", err);
-        materialConteudo.innerHTML = `<p>⚠️ Erro ao gerar conteúdo. Causa: ${err.message}.</p>`;
-    }
+// Função principal para iniciar a geração da trilha (Roadmap)
+async function generateRoadmap(tema, nivel, objetivo) {
+    // Simulação de resposta da API
+    handleRoadmapGenerationResponse({
+        tema: tema,
+        nivel: nivel,
+        objetivo: objetivo,
+        etapas: [
+            // Resposta de exemplo simulada:
+            { titulo: "Introdução à Programação", topicos: [{ tópico: "Variáveis", material: "link" }, { tópico: "Estruturas de Controle", material: "link" }], atividade: "Criar calculadora" }
+        ],
+        generatedAt: new Date().toLocaleDateString()
+    });
 }
 
-// --- FUNÇÕES: FLASHCARDS POR TÓPICO ---
+function handleRoadmapGenerationResponse(trilha) {
+    currentUser.trilhas.push(trilha);
+    currentUser.currentTrilhaIndex = currentUser.trilhas.length - 1;
+    saveUserTrilhas();
+    showRoadmapView();
+}
 
-let currentFlashcards = [];
-let currentFlashcardIndex = 0;
 
-async function fetchAndRenderFlashcards(topico) {
-    document.getElementById("flashcard-titulo").innerText = `Flashcards: ${topico}`;
-    const flashcardDisplay = document.getElementById("flashcard-display");
-    
-    // NOVO: Adiciona o container para flashcard + mascote antes de carregar
-    flashcardDisplay.innerHTML = `
-        <p>Carregando flashcards sobre: <strong>${topico}</strong>...</p>
-        <div class="flashcard-mascote-container" id="flashcard-mascote-container">
-            <img src="mascote_flashcard.png" alt="Mascote estudando" class="mascote-flashcard" id="mascote-flashcard-img">
-            <div class="flashcard-placeholder"></div>
-        </div>
-    `;
+// Função para iniciar a geração do Simulado (Simulada)
+async function generateSimulado(etapaIndex) {
+    // Simulação de resposta da API
+    const simuladoData = {
+        titulo: `Simulado da Etapa ${etapaIndex + 1}`,
+        questoes: [
+            { pergunta: "Pergunta 1 do Simulado:", alternativas: ["A", "B", "C", "D"], correta: "A", explicacao: "Explicação 1" },
+            { pergunta: "Pergunta 2 do Simulado:", alternativas: ["A", "B", "C", "D"], correta: "B", explicacao: "Explicação 2" },
+            { pergunta: "Pergunta 3 do Simulado:", alternativas: ["A", "B", "C", "D"], correta: "C", explicacao: "Explicação 3" }
+        ]
+    };
+    handleSimuladoGenerationResponse(simuladoData);
+}
 
-    try {
-        // ATUALIZAÇÃO NO PROMPT: Requer 5 objetos únicos
-        const systemPromptFlashcard = `Você é um gerador de flashcards. Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um array de **5 objetos**, onde cada objeto tem uma "pergunta" (frente do card) e uma "resposta" (verso do card). As 5 perguntas devem ser **únicas** e cobrir diferentes aspectos do tópico. O formato deve ser: [{"pergunta": "...", "resposta": "..."}, {"pergunta": "...", ...}].`;
-        const userPromptFlashcard = `Crie 5 flashcards de pergunta e resposta sobre o tópico "${topico}" no nível ${document.getElementById("nivel").value}.`;
+function handleSimuladoGenerationResponse(simuladoData) {
+    const simuladoContainer = document.getElementById("simulado-etapa-conteudo");
+    const botoesContainer = document.getElementById("simulado-etapa-botoes");
+    let userAnswers = {}; // Para armazenar as respostas do usuário
 
-        const response = await fetch(GROQ_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
-            body: JSON.stringify({ model: MODEL_NAME, messages: [{ role: "system", content: systemPromptFlashcard }, { role: "user", content: userPromptFlashcard }], response_format: { type: "json_object" }, temperature: 0.6 })
+    function renderSimulado() {
+        let html = '';
+        simuladoData.questoes.forEach((questao, qIndex) => {
+            html += `
+                <div class="simulado-bloco" data-question-index="${qIndex}">
+                    <p><strong>Questão ${qIndex + 1}:</strong> ${questao.pergunta}</p>
+                    <ul>
+            `;
+            questao.alternativas.forEach((alt, aIndex) => {
+                const isSelected = userAnswers[qIndex] === alt;
+                const selectedClass = isSelected ? 'selected' : '';
+                html += `
+                    <li class="alternativa ${selectedClass}" 
+                        data-alternative="${alt}"
+                        onclick="selectAlternative(${qIndex}, '${alt}')">${alt}</li>
+                `;
+            });
+            html += `
+                    </ul>
+                    <hr>
+                </div>
+            `;
         });
+        simuladoContainer.innerHTML = html;
 
-        if (!response.ok) { throw new Error(`Erro API: ${response.status}`); }
-        const data = await response.json();
-        let texto = data?.choices?.[0]?.message?.content || "Erro ao gerar flashcards.";
-
-        let parsedData;
-        try {
-            parsedData = JSON.parse(texto.trim());
-        } catch (e) {
-            let jsonMatch = texto.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim().match(/\[[\s\S]*\]/);
-            if (!jsonMatch) throw new Error("Não foi possível extrair JSON dos flashcards.");
-            parsedData = JSON.parse(jsonMatch[0]);
-        }
-        
-        currentFlashcards = Array.isArray(parsedData) ? parsedData : parsedData.flashcards || [parsedData];
-        currentFlashcardIndex = 0;
-        renderFlashcard();
-
-    } catch (err) {
-        console.error("Erro no Flashcard:", err);
-        // Atualiza a área de display para mostrar o erro
-        document.getElementById("flashcard-display").innerHTML = `
-            <p>⚠️ Erro ao gerar flashcards. Causa: ${err.message}.</p>
+        botoesContainer.innerHTML = `
+            <button class="btn-primary" onclick="submitSimulado()">Finalizar Simulado</button>
         `;
     }
-}
 
-function renderFlashcard() {
-    const flashcardDisplay = document.getElementById("flashcard-display");
-    
-    if (currentFlashcards.length === 0) {
-        flashcardDisplay.innerHTML = "<p>Nenhum flashcard gerado.</p>";
-        return;
-    }
+    window.selectAlternative = (qIndex, alt) => {
+        userAnswers[qIndex] = alt;
+        renderSimulado(); // Renderiza novamente para destacar a seleção
+    };
 
-    const card = currentFlashcards[currentFlashcardIndex];
-    const total = currentFlashcards.length;
+    window.submitSimulado = () => {
+        let correctCount = 0;
+        let finalHtml = '';
+        
+        simuladoData.questoes.forEach((questao, qIndex) => {
+            const userAnswer = userAnswers[qIndex];
+            const isCorrect = userAnswer === questao.correta;
 
-    // CORREÇÃO: Converte **negrito** para <b>negrito</b> e quebra de linha para <br>
-    const perguntaFormatada = (card.pergunta || '')
-        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/\n/g, "<br>");
+            if (isCorrect) {
+                correctCount++;
+            }
 
-    // CORREÇÃO: Converte **negrito** para <b>negrito</b> e quebra de linha para <br>
-    const respostaFormatada = (card.resposta || '')
-        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/\n/g, "<br>");
-    
-    // Mantém a estrutura com o mascote
-    flashcardDisplay.innerHTML = `
-        <p>Card ${currentFlashcardIndex + 1} de ${total}</p>
-        <div class="flashcard-mascote-container">
-            <img src="mascote_flashcard.png" alt="Mascote estudando" class="mascote-flashcard">
-            
-            <div class="flashcard" id="current-flashcard" onclick="toggleFlip()">
-                <div class="flashcard-inner">
-                    <div class="flashcard-face flashcard-front">
-                        <p style="font-weight: bold;">PERGUNTA:</p>
-                        <p>${perguntaFormatada || 'Erro ao carregar pergunta.'}</p>
+            finalHtml += `
+                <div class="simulado-bloco" data-question-index="${qIndex}">
+                    <p><strong>Questão ${qIndex + 1}:</strong> ${questao.pergunta}</p>
+                    <ul>
+            `;
+            questao.alternativas.forEach((alt) => {
+                let classResult = '';
+                if (alt === questao.correta) {
+                    classResult = 'correta-destacada';
+                } else if (alt === userAnswer && !isCorrect) {
+                    classResult = 'incorreta';
+                }
+                
+                finalHtml += `
+                    <li class="alternativa ${classResult}">
+                        ${alt} ${alt === questao.correta ? ' (Correta)' : ''}
+                    </li>
+                `;
+            });
+            finalHtml += `
+                    </ul>
+                    <div style="padding: 10px; background-color: #f7f7f7; border-radius: 4px; margin-top: 10px;">
+                        <strong>Explicação:</strong> ${questao.explicacao}
                     </div>
-                    <div class="flashcard-face flashcard-back">
-                        <p style="font-weight: bold;">RESPOSTA:</p>
-                        <p>${respostaFormatada || 'Erro ao carregar resposta.'}</p>
-                    </div>
+                    <hr>
                 </div>
-            </div>
-        </div>
-
-        <div class="flashcard-navigation">
-            <button class="btn-secondary" onclick="prevFlashcard()" ${currentFlashcardIndex === 0 ? 'disabled' : ''}>Anterior</button>
-            <button class="btn-success" onclick="nextFlashcard()" ${currentFlashcardIndex === total - 1 ? 'disabled' : ''}>Próximo</button>
-        </div>
-    `;
-}
-
-function toggleFlip() {
-    document.getElementById('current-flashcard').classList.toggle('flipped');
-}
-
-function prevFlashcard() {
-    if (currentFlashcardIndex > 0) {
-        currentFlashcardIndex--;
-        // Remove a classe 'flipped' antes de renderizar o novo card para que ele comece virado para frente
-        document.getElementById('current-flashcard').classList.remove('flipped'); 
-        renderFlashcard();
-    }
-}
-
-function nextFlashcard() {
-    if (currentFlashcardIndex < currentFlashcards.length - 1) {
-        currentFlashcardIndex++;
-        // Remove a classe 'flipped' antes de renderizar o novo card para que ele comece virado para frente
-        document.getElementById('current-flashcard').classList.remove('flipped'); 
-        renderFlashcard();
-    }
-}
-
-// --- FUNÇÕES: SIMULADO POR ETAPA ---
-
-let currentSimuladoEtapa = [];
-let userAnswers = {};
-
-async function fetchAndRenderSimuladoEtapa() {
-    const etapa = modalState.currentEtapa;
-    document.getElementById("simulado-etapa-titulo").innerText = `Simulado Completo: ${etapa.titulo}`;
-    const simuladoConteudo = document.getElementById("simulado-etapa-conteudo");
-    const simuladoBotoes = document.getElementById("simulado-etapa-botoes");
-
-    simuladoConteudo.innerHTML = `<p>Carregando simulado de 20+ questões sobre a etapa: <strong>${etapa.titulo}</strong>...</p>`;
-    simuladoBotoes.innerHTML = '';
-    currentSimuladoEtapa = [];
-    userAnswers = {};
-
-    try {
-        // ATUALIZAÇÃO NO PROMPT: Requer diversidade de perguntas, distribuição aleatória das respostas, e estilo de prova/vestibular.
-        const systemPromptSimulado = `Você é um gerador de questões de múltipla escolha no estilo de provas e vestibulares. Crie um simulado de no mínimo 20 (vinte) questões sobre todos os tópicos fornecidos. **Todas as questões devem ser únicas e cobrir diferentes áreas dos tópicos.** Sua única resposta deve ser APENAS JSON válido, sem texto introdutório. O JSON deve ser um objeto contendo um array de "simulados" seguindo o formato: {"simulados": [{"pergunta": "...", "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."], "resposta_correta": "Letra da alternativa correta (ex: C)"}, ...]}. **IMPORTANTE: Distribua a resposta correta de forma aleatória (A, B, C, D ou E) para evitar ciclos viciosos de repetição de letra.**`;
-        const topicosEtapa = etapa.topicos.map(t => t.tópico).join(", ");
-        const nivel = document.getElementById("nivel").value;
-        const userPromptSimulado = `Crie no mínimo 20 questões de múltipla escolha sobre os seguintes tópicos da etapa: ${topicosEtapa} no nível ${nivel}. As questões devem ter 5 alternativas e o estilo deve ser complexo e abrangente, como em um vestibular/curso técnico.`;
-
-        const response = await fetch(GROQ_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
-            body: JSON.stringify({ model: MODEL_NAME, messages: [{ role: "system", content: systemPromptSimulado }, { role: "user", content: userPromptSimulado }], response_format: { type: "json_object" }, temperature: 0.6 })
+            `;
         });
 
-        if (!response.ok) { throw new Error(`Erro API: ${response.status}`); }
-        const data = await response.json();
-        let texto = data?.choices?.[0]?.message?.content || "Erro ao gerar simulado.";
-
-        let parsedData;
-        try {
-            parsedData = JSON.parse(texto.trim());
-        } catch (e) {
-            let jsonMatch = texto.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim().match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("Não foi possível extrair JSON do simulado.");
-            parsedData = JSON.parse(jsonMatch[0]);
-        }
+        // Exibe o resultado
+        const totalQuestions = simuladoData.questoes.length;
+        const score = (correctCount / totalQuestions) * 100;
         
-        currentSimuladoEtapa = parsedData.simulados || [parsedData];
-        renderSimuladoEtapa();
+        const resultadoHtml = `<div id="simulado-resultado">
+            Resultado Final: ${correctCount}/${totalQuestions} (${score.toFixed(0)}%)
+        </div>`;
+        
+        simuladoContainer.innerHTML = resultadoHtml + finalHtml;
+        botoesContainer.innerHTML = `
+            <button class="btn-primary" onclick="showEtapaView(modalState.currentEtapa)">Retornar à Etapa</button>
+        `;
+    };
 
-    } catch (err) {
-        console.error("Erro no Simulado Etapa:", err);
-        simuladoConteudo.innerHTML = `<p>⚠️ Erro ao gerar simulado da etapa. Causa: ${err.message}.</p>`;
-    }
+    renderSimulado();
 }
 
-function renderSimuladoEtapa() {
-    const simuladoConteudo = document.getElementById("simulado-etapa-conteudo");
-    const simuladoBotoes = document.getElementById("simulado-etapa-botoes");
 
-    if (currentSimuladoEtapa.length === 0) {
-         simuladoConteudo.innerHTML = "<p>Nenhuma questão gerada.</p>";
+// --- CHATBOT PATOLINDO (GROQ API SIMULADA) ---
+
+// Função principal de comunicação com a Groq
+async function getGroqResponse(messages) {
+     // Simulação de resposta da API
+     const lastUserMessage = messages[messages.length - 1].content.toLowerCase();
+     
+     let responseText = "Sou o Patolindo, seu assistente de estudos! Para que eu possa te ajudar, por favor, crie e ative uma trilha de estudos. Assim, poderei responder perguntas específicas sobre o seu conteúdo atual.";
+     
+     if (currentUser.currentTrilhaIndex !== -1) {
+         const trilhaAtual = currentUser.trilhas[currentUser.currentTrilhaIndex];
+         responseText = `A trilha de estudos ativa é sobre **${trilhaAtual.tema}** no nível **${trilhaAtual.nivel}**. 
+         
+         Se a sua pergunta for sobre **${lastUserMessage}**, eu diria que a resposta chave é: [A resposta real da Groq sobre o tópico]
+         
+         Lembre-se: Este é o seu limite de ${patolindoState.questionsLeft} perguntas restantes!`;
+     }
+
+     return responseText;
+}
+
+// Função de envio de mensagem no chat
+async function sendChatMessage() {
+    const inputField = document.getElementById("chat-input");
+    const sendButton = document.getElementById("chat-send-button");
+    const userText = inputField.value.trim();
+
+    if (!userText) return;
+
+    // 1. Exibir mensagem do usuário
+    appendMessage(userText, 'user');
+    inputField.value = '';
+
+    // 2. Desabilitar interação e verificar limite
+    sendButton.disabled = true;
+    inputField.disabled = true;
+
+    if (currentUser.currentTrilhaIndex === -1 && currentUser.name !== 'Convidado') {
+         appendMessage("Patolindo: Você precisa ter uma trilha de estudos ativa para usar o assistente.", 'bot');
+         sendButton.disabled = false;
+         inputField.disabled = false;
+         return;
+    }
+    
+    if (currentUser.name === 'Convidado' || patolindoState.questionsLeft <= 0) {
+         appendMessage("Patolindo: Você atingiu o limite de perguntas do modo Convidado ou da sua cota atual. Por favor, ative uma conta ou entre em contato com o suporte.", 'bot');
+         sendButton.disabled = false;
+         inputField.disabled = false;
          return;
     }
 
-    const simuladosHtml = currentSimuladoEtapa.map((simulado, index) => {
-        const alternativasHtml = simulado.alternativas.map((alt, altIndex) => {
-            // Tenta garantir que o formato seja A), B), C), etc.
-            const letra = alt.charAt(0).toUpperCase(); 
-            const isSelected = userAnswers[index] === letra;
-            return `<li class="alternativa ${isSelected ? 'selected' : ''}" 
-                        data-question-index="${index}" 
-                        data-answer="${letra}" 
-                        onclick="selectAlternative(this)">
-                        ${alt}
-                    </li>`;
-        }).join("");
+    // 3. Adicionar ao histórico e chamar API (simulada)
+    patolindoState.history.push({ role: "user", content: userText });
 
-        return `<div class="simulado-bloco" data-index="${index}">
-                    <h4>Questão ${index + 1}:</h4>
-                    <p><strong>${simulado.pergunta}</strong></p>
-                    <ul>${alternativasHtml}</ul>
-                </div><hr>`;
-    }).join("");
-
-    simuladoConteudo.innerHTML = `<div class="simulado-area">${simuladosHtml}</div><div id="simulado-resultado" style="display:none;"></div>`;
-    
-    // Botão de corrigir só aparece se o simulado existir
-    simuladoBotoes.innerHTML = `<button class="btn-primary" onclick="corrigirSimuladoEtapa()">Corrigir e Ver Resultado</button>`;
-}
-
-function selectAlternative(liElement) {
-    const questionIndex = liElement.getAttribute('data-question-index');
-    const answer = liElement.getAttribute('data-answer');
-    const ul = liElement.closest('ul');
-    
-    // Remove seleção de todas as alternativas
-    ul.querySelectorAll('.alternativa').forEach(li => li.classList.remove('selected'));
-    
-    // Adiciona seleção à alternativa clicada
-    liElement.classList.add('selected');
-    
-    // Armazena a resposta do usuário
-    userAnswers[questionIndex] = answer;
-}
-
-function corrigirSimuladoEtapa() {
-    let acertos = 0;
-    const totalQuestoes = currentSimuladoEtapa.length;
-
-    currentSimuladoEtapa.forEach((simulado, index) => {
-        const bloco = document.querySelector(`.simulado-bloco[data-index="${index}"]`);
-        if (!bloco) return;
-        
-        const alternativas = bloco.querySelectorAll('.alternativa');
-        // Garante que a resposta correta é a letra maiúscula
-        const respostaCorreta = simulado.resposta_correta.charAt(0).toUpperCase(); 
-        const respostaUsuario = userAnswers[index];
-        
-        // Desabilita cliques após a correção
-        alternativas.forEach(li => li.onclick = null);
-
-        alternativas.forEach(li => {
-            const letra = li.getAttribute('data-answer');
-            li.classList.remove('selected'); // Remove a seleção temporária
-
-            if (letra === respostaCorreta) {
-                li.classList.add('correta-destacada'); // Marca a correta
-            } 
-            
-            if (letra === respostaUsuario && letra !== respostaCorreta) {
-                li.classList.add('incorreta'); // Marca a incorreta do usuário
-            }
-        });
-
-        if (respostaUsuario === respostaCorreta) {
-            acertos++;
-        }
-    });
-
-    const porcentagem = (acertos / totalQuestoes) * 100;
-    const resultadoDiv = document.getElementById('simulado-resultado');
-    
-    let mascoteImg = '';
-    let resultadoTitulo = '';
-    
-    if (porcentagem >= 70) {
-        mascoteImg = 'resul-bom.png';
-        resultadoTitulo = `Parabéns! Excelente Desempenho! 🎉`;
-    } else if (porcentagem >= 40) {
-        mascoteImg = 'resul-medio.png';
-        resultadoTitulo = `Bom Resultado! Continue Praticando. 👍`;
-    } else {
-        mascoteImg = 'resul-ruim.png';
-        resultadoTitulo = `Precisa de Atenção! Revise os Tópicos. 🧐`;
-    }
-
-
-    resultadoDiv.innerHTML = `
-        <img src="${mascoteImg}" alt="Mascote de Resultado" class="mascote-simulado">
-        <div class="resultado-texto">
-            <h3>${resultadoTitulo}</h3>
-            <p>Total de Questões: <strong>${totalQuestoes}</strong></p>
-            <p>Acertos: <strong style="color: var(--color-success);">${acertos}</strong></p>
-            <p>Erros: <strong style="color: var(--color-danger);">${totalQuestoes - acertos}</strong></p>
-            <p>Taxa de Acerto: <strong style="font-size: 1.5em; color: ${porcentagem >= 70 ? 'var(--color-success)' : 'var(--color-danger)'}">${porcentagem.toFixed(2)}%</strong></p>
-        </div>
-    `;
-    resultadoDiv.style.display = 'flex'; // Modificado para 'flex' para usar o layout do mascote
-    
-    // Remove o botão de corrigir
-    document.getElementById("simulado-etapa-botoes").innerHTML = '';
-    
-    // Rola para o resultado
-    resultadoDiv.scrollIntoView({ behavior: 'smooth' });
-}
-
-
-// --- LÓGICA DO CHATBOT PATOLINDO (COM RESTRIÇÃO DE TEMA E TUTORIA) ---
-
-function updateSendButtonState() {
-    const input = document.getElementById("chat-input");
-    const sendButton = document.getElementById("chat-send-button");
-    const headerSpan = document.getElementById("chat-counter");
-    
-    sendButton.disabled = input.value.trim() === '' || patolindoState.questionsLeft <= 0;
-    input.disabled = patolindoState.questionsLeft <= 0;
-    
-    headerSpan.innerText = `(${patolindoState.questionsLeft} Perguntas)`;
-
-    if (patolindoState.questionsLeft <= 0) {
-        input.placeholder = "Sessão encerrada. Reabra para começar de novo.";
-    } else {
-        input.placeholder = "Sua pergunta...";
-    }
-}
-
-function resetPatolindoSession() {
-    patolindoState.questionsLeft = 5;
-    
-    const currentTrilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
-    const theme = currentTrilha ? currentTrilha.tema : null;
-
-    const themeRestriction = theme ? `O ÚNICO TEMA permitida para conversação é: "${theme}". Você deve RECUSAR educadamente perguntas fora deste assunto.` : "Nenhuma trilha de estudos foi gerada. Você deve recusar perguntas até que uma trilha seja gerada.";
-
-    // ⚠️ ATENÇÃO: INSTRUÇÃO DE TUTORIA E EXCEÇÃO INCLUÍDAS AQUI
-    patolindoState.history = [{
-        role: "system",
-        content: `Você é o Patolindo, um assistente de estudos prestativo e didático. Sua função é responder a no máximo 5 perguntas do usuário. Sua **principal diretriz é guiar o usuário à resposta**, nunca a entregando de forma completa e direta. Transforme a resposta em uma dica ou uma pergunta instigante para fomentar o aprendizado ativo. **Você só deve fornecer a resposta completa e direta se o usuário solicitar explicitamente.** Seja conciso e focado. ${themeRestriction}`
-    }]; 
-
-    const chatMessages = document.getElementById("chat-messages");
-    // APLICANDO A FORMATAÇÃO PARA A MENSAGEM INICIAL DE BOAS-VINDAS
-    const welcomeText = `Olá! Sou o Patolindo. Você tem **${patolindoState.questionsLeft} perguntas** para tirar dúvidas sobre a sua trilha atual (**${theme || 'NENHUM TEMA'}**).`;
-    const welcomeHtml = welcomeText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, "<br>");
-
-    chatMessages.innerHTML = `<p class="bot-message"><span class="bot-bubble">${welcomeHtml}</span></p>`;
-    chatMessages.scrollTop = chatMessages.scrollHeight; 
-    updateSendButtonState();
-}
-
-async function handleChatSend() {
-    const input = document.getElementById("chat-input");
-    const question = input.value.trim();
-    
-    if (!question || patolindoState.questionsLeft <= 0) return;
-    
-    appendMessage(question, 'user');
-    input.value = ''; 
-    
-    const sendButton = document.getElementById("chat-send-button");
-    sendButton.disabled = true; 
-    
     try {
-        patolindoState.history.push({ role: "user", content: question });
-
-        const currentTrilha = currentUser.trilhas[currentUser.currentTrilhaIndex];
-        const roadmapContext = currentTrilha ? JSON.stringify(currentTrilha.etapas) : "Nenhuma trilha de estudos foi gerada ainda.";
-        
-        // Construa a lista de mensagens, garantindo que o System Prompt esteja no início.
-        const systemContext = {
-            role: "system",
-            content: patolindoState.history[0].content + 
-                     ` O contexto da trilha de estudos atual do usuário é: ${roadmapContext}. Você deve ser rigoroso em se manter APENAS no tema da trilha.`
-        };
-        
-        const messagesToSend = [systemContext].concat(patolindoState.history.slice(1)); 
-
-        const response = await fetch(GROQ_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
-            body: JSON.stringify({ model: MODEL_NAME, messages: messagesToSend, temperature: 0.8 })
-        });
-
-        if (!response.ok) { throw new Error(`Erro API: ${response.status}`); }
-
-        const data = await response.json();
-        const answer = data?.choices?.[0]?.message?.content || "Desculpe, ocorreu um erro de comunicação e não consegui gerar a resposta.";
-
+        const answer = await getGroqResponse(patolindoState.history);
         appendMessage(answer, 'bot');
         
-        // Verifica se a resposta foi uma recusa (para não descontar a pergunta)
-        const isRefusal = answer.toLowerCase().includes("não consigo responder") || answer.toLowerCase().includes("fora do tema");
-
-        if (!isRefusal) {
+        // Diminuir o contador apenas se for uma resposta real (não erro ou aviso)
+        if (!answer.includes("Por favor, crie e ative uma trilha")) {
             patolindoState.history.push({ role: "assistant", content: answer });
             patolindoState.questionsLeft--;
         } else {
@@ -1149,6 +798,7 @@ async function handleChatSend() {
         appendMessage("Patolindo: Desculpe, ocorreu um erro de comunicação. Tente novamente.", 'bot');
     } finally {
         sendButton.disabled = false;
+        inputField.disabled = false;
         updateSendButtonState();
     }
 }
@@ -1170,3 +820,112 @@ function appendMessage(text, sender) {
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
+function updateSendButtonState() {
+    const sendButton = document.getElementById("chat-send-button");
+    const inputField = document.getElementById("chat-input");
+    document.getElementById("chat-counter").innerText = `(${patolindoState.questionsLeft} Perguntas)`;
+
+    if (currentUser.currentTrilhaIndex === -1 || patolindoState.questionsLeft <= 0) {
+        sendButton.disabled = true;
+        inputField.disabled = true;
+        inputField.placeholder = "Limite de perguntas atingido ou trilha não ativa.";
+    } else {
+        sendButton.disabled = false;
+        inputField.disabled = false;
+        inputField.placeholder = "Sua pergunta...";
+    }
+}
+
+// --- INICIALIZAÇÃO E EVENT LISTENERS ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserData(localStorage.getItem('quackademyUser')); // Carrega último usuário ou inicia como Convidado
+    
+    if (currentUser.name && currentUser.name !== 'Convidado') {
+        // Se o login foi persistido, avança para a tela principal
+        toggleAppDisplay(true);
+        showRoadmapView();
+    } else {
+        // Caso contrário, mostra a tela de Login
+        viewMap["login-screen"].style.display = 'flex';
+        toggleAppDisplay(false);
+    }
+
+    // Eventos da Tela de Login
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        loadAllUsersData(); // Recarrega todos os usuários
+        const storedUser = allUsersData[username];
+        const authMessage = document.getElementById('auth-message');
+
+        if (storedUser) {
+            // Login (Simulado)
+            if (storedUser.password === password) {
+                localStorage.setItem('quackademyUser', username);
+                loadUserData(username);
+                viewMap["login-screen"].style.display = 'none';
+                viewMap["welcome-screen"].style.display = 'flex';
+            } else {
+                authMessage.innerText = "Senha incorreta.";
+            }
+        } else {
+            // Cadastro (Simulado)
+            localStorage.setItem('quackademyUser', username);
+            loadUserData(username);
+            authMessage.innerText = "Usuário cadastrado com sucesso!";
+            viewMap["login-screen"].style.display = 'none';
+            viewMap["welcome-screen"].style.display = 'flex';
+        }
+    });
+
+    document.getElementById('btnSkipLogin').addEventListener('click', () => {
+        localStorage.removeItem('quackademyUser');
+        loadUserData('Convidado');
+        viewMap["login-screen"].style.display = 'none';
+        viewMap["welcome-screen"].style.display = 'flex';
+    });
+
+    // Eventos das Telas de Boas-Vindas
+    document.getElementById('btnWelcomeContinue').addEventListener('click', () => {
+        viewMap["welcome-screen"].style.display = 'none';
+        viewMap["explanation-screen"].style.display = 'flex';
+    });
+    document.getElementById('btnExplanationContinue').addEventListener('click', () => {
+        toggleAppDisplay(true);
+        showPreDefinedCoursesView();
+    });
+
+
+    // Eventos do Formulário de Criação de Trilha
+    document.getElementById('btnGerar').addEventListener('click', () => {
+        const tema = document.getElementById('tema').value;
+        const nivel = document.getElementById('nivel').value;
+        const objetivo = document.getElementById('objetivo').value;
+        
+        if (tema) {
+            document.getElementById('roadmap').innerHTML = '<p class="placeholder-text">Gerando sua trilha de estudos... Aguarde. (Simulando chamada à Groq)</p>';
+            generateRoadmap(tema, nivel, objetivo);
+        } else {
+            alert('Por favor, defina um Tema.');
+        }
+    });
+
+    // Eventos do Chatbot
+    document.getElementById("chat-send-button").addEventListener('click', sendChatMessage);
+    document.getElementById("chat-input").addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendChatMessage();
+        }
+    });
+    document.getElementById("chat-exit-button").addEventListener('click', hideChatView);
+
+    // Listener para o botão flutuante de chat
+    viewMap["chat-button"].onclick = toggleChatWindow;
+
+    // Inicializa estado do botão de envio do chat
+    updateSendButtonState();
+});
