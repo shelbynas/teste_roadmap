@@ -4,7 +4,6 @@
 
 // ⚠️ ATENÇÃO: CHAVE DA API ATUALIZADA AQUI
 const API_KEY ="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"; 
-
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL_NAME = "llama-3.1-8b-instant"; 
 
@@ -179,18 +178,18 @@ const viewMap = {
 // --- FUNÇÕES DE NAVEGAÇÃO E VIEW RENDERING ---
 
 function hideAllViews() {
+    // Esconde todas as sub-views do main-app
     Object.keys(viewMap).forEach(key => {
         const element = viewMap[key];
+        // Aplica o display: none apenas nas views internas do app (terminadas em -view)
         if (element && element.id && element.id.endsWith('-view')) {
-            element.style.display = 'none';
-        }
-        if (key === 'form-view' && element) {
             element.style.display = 'none';
         }
     });
 }
 
 function toggleAppDisplay(show) {
+    // Essa função gerencia a visibilidade das telas principais (Login, Welcome, Main App)
     viewMap["login-screen"].style.display = 'none';
     viewMap["welcome-screen"].style.display = 'none';
     viewMap["explanation-screen"].style.display = 'none';
@@ -200,6 +199,7 @@ function toggleAppDisplay(show) {
         viewMap["chat-button"].style.display = 'flex';
     } else {
         viewMap["main-app"].style.display = 'none';
+        // O botão do chat só aparece dentro do main-app
         viewMap["chat-button"].style.display = 'none';
     }
 }
@@ -223,6 +223,7 @@ function showPreDefinedCoursesView() {
 
 function showFormView() {
     hideAllViews();
+    // Essa view usa flexbox para centralizar o formulário
     viewMap["form-view"].style.display = 'flex';
     // MODIFICAÇÃO A11y: Focar no título da nova view
     setFocusToNewView("form-view");
@@ -303,11 +304,6 @@ function showChatView() {
 }
 
 function hideChatView() {
-    if (patolindoState.lastView === "roadmap-view") {
-        showRoadmapView();
-    } else if (patolindoState.lastView === "etapa-view") {
-        showEtapaView(modalState.currentEtapa);
-    }
     // Retorna para a última view principal
     viewMap[patolindoState.lastView].style.display = 'block';
 }
@@ -847,9 +843,11 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAppDisplay(true);
         showRoadmapView();
     } else {
-        // Caso contrário, mostra a tela de Login
-        viewMap["login-screen"].style.display = 'flex';
-        toggleAppDisplay(false);
+        // CORREÇÃO CRÍTICA AQUI:
+        // Ocultar todas as telas principais exceto a de Login, que é a primeira.
+        // A função toggleAppDisplay(false) estava ocultando a tela de Login, causando a tela branca.
+        toggleAppDisplay(false); // Oculta o main-app
+        viewMap["login-screen"].style.display = 'flex'; // Exibe SOMENTE a tela de Login
     }
 
     // Eventos da Tela de Login
